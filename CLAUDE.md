@@ -27,6 +27,7 @@ Proyecto paralelo con alcance cerrado. Prioriza soluciones simples, mantenibles 
 ## Home (orden de secciones)
 1. Hero: "Descubre Bolivia. Vive la aventura." + CTA hacia los tours
 2. Tours destacados (tarjetas con foto, duración, tipo y "desde USD X", enlazadas a `/tours/[slug]`)
+2. 2b: Tour personalizado: "Arma tu propio tour por Bolivia" + CTA a WhatsApp
 3. Seguridad y calidad (el diferenciador principal)
 4. Por qué elegirnos
 5. Nosotros
