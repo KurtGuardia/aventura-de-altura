@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Home",
+    "tours": "Tours",
+    "contact": "Contact"
+  },
+  "buttons": {
+    "viewTours": "View tours",
+    "checkAvailability": "Check availability",
+    "contactWhatsApp": "Message us on WhatsApp"
+  },
+  "labels": {
+    "from": "From",
+    "duration": "Duration",
+    "difficulty": "Difficulty",
+    "altitude": "Altitude",
+    "departure": "Departure",
+    "languages": "Languages"
+  }
+}
