@@ -15,7 +15,7 @@ import {structure} from './sanity/structure'
 
 // Tipos "singleton": existe un único documento, que no se puede crear,
 // duplicar ni borrar desde el Studio.
-const singletonTypes = new Set(['siteSettings'])
+const singletonTypes = new Set(['siteSettings', 'gallery'])
 const singletonActions = new Set(['publish', 'discardChanges', 'restore'])
 
 export default defineConfig({

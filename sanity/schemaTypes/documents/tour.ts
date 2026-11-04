@@ -34,30 +34,14 @@ export const tour = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'slug',
-      title: 'Dirección web (URL)',
-      type: 'slug',
+      name: 'categories',
+      title: 'Tipos de tour',
+      type: 'array',
       group: 'cover',
       description:
-        'Se usa en el enlace del tour, por ejemplo /es/tours/pico-tunari. Pulsa "Generar" para crearla a partir del nombre. Evita cambiarla una vez publicado el tour.',
-      options: {source: 'title.es', maxLength: 96},
-      validation: (rule) => rule.required().error('La dirección web es obligatoria.'),
-    }),
-    defineField({
-      name: 'category',
-      title: 'Tipo de tour',
-      type: 'string',
-      group: 'cover',
-      options: {
-        list: [
-          {title: 'Trekking', value: 'trekking'},
-          {title: 'Alta montaña', value: 'alta-montana'},
-          {title: 'Naturaleza', value: 'naturaleza'},
-          {title: 'Cultura / ciudad', value: 'cultura'},
-        ],
-        layout: 'radio',
-      },
-      validation: (rule) => rule.required().warning('Elige el tipo de tour.'),
+        'Elige uno o varios. Se muestran en la tarjeta y en la página del tour. Si falta un tipo, créalo en "Tipos de tour" del menú.',
+      of: [defineArrayMember({type: 'reference', to: [{type: 'tourCategory'}]})],
+      validation: (rule) => rule.required().min(1).unique().warning('Elige al menos un tipo de tour.'),
     }),
     defineField({
       name: 'tagline',
@@ -130,9 +114,6 @@ export const tour = defineType({
             list: [
               {title: 'Español', value: 'es'},
               {title: 'Inglés', value: 'en'},
-              {title: 'Francés (con traductor)', value: 'fr'},
-              {title: 'Alemán (con traductor)', value: 'de'},
-              {title: 'Portugués (con traductor)', value: 'pt'},
             ],
             layout: 'grid',
           },
@@ -358,6 +339,17 @@ export const tour = defineType({
 
     // ── Control ────────────────────────────────────────────────
     defineField({
+      name: 'slug',
+      title: 'Dirección web (URL)',
+      type: 'slug',
+      group: 'control',
+      description:
+        'Es la parte final del enlace del tour (por ejemplo: aventuradealtura.com/es/tours/pico-tunari). Solo se completa una vez, al crear el tour: pulsa "Generate" y se crea sola a partir del nombre. No la cambies después de publicar, o los enlaces ya compartidos dejarán de funcionar.',
+      options: {source: 'title.es', maxLength: 96},
+      validation: (rule) =>
+        rule.required().error('Falta la dirección web: pulsa "Generate" en la pestaña Control.'),
+    }),
+    defineField({
       name: 'featured',
       title: 'Destacado en la página de inicio',
       type: 'boolean',
@@ -378,7 +370,7 @@ export const tour = defineType({
     {title: 'Orden', name: 'orderAsc', by: [{field: 'order', direction: 'asc'}]},
   ],
   preview: {
-    select: {title: 'title.es', media: 'coverImage', featured: 'featured', category: 'category'},
+    select: {title: 'title.es', media: 'coverImage', featured: 'featured'},
     prepare: ({title, media, featured}) => ({
       title: title || 'Tour sin nombre',
       subtitle: featured ? '★ Destacado' : undefined,

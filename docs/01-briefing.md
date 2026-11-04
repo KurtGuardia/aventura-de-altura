@@ -10,7 +10,7 @@
 - Quiere destacar **más de 15 años de experiencia** (dato a verificar con el cliente).
 - WhatsApp: +591 76922077 / +591 68500428.
 - Facebook: https://www.facebook.com/AventuraDeAlturaBolivia
-- Atiende en español e inglés; francés, alemán y portugués con traductor (USD 50 por grupo).
+- Atiende en español e inglés. **[DECIDIDO]** No se ofrecen otros idiomas ni traductor.
 - **El cliente no es técnico**: debe poder editar contenido sin depender de un programador.
 
 ## 2. Posicionamiento y mensaje

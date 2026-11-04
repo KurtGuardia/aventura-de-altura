@@ -161,7 +161,7 @@
 
 - Transporte privado.
 - Guía local con formación en emergencias médicas, seguridad y rescate.
-- Idiomas: ES / EN; otros idiomas con traductor (USD 50 por grupo).
+- Idiomas: ES / EN; otros idiomas con traductor (USD 50 por grupo). **[DESCARTADO para la web: no se ofrece traductor; ver 04-decisiones.md]**
 - Cooler y refrigerios.
 - Alimentación indicada en el itinerario.
 

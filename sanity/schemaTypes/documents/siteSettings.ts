@@ -19,13 +19,14 @@ export const siteSettings = defineType({
   title: 'Ajustes del sitio',
   type: 'document',
   groups: [
-    {name: 'contact', title: 'Contacto', default: true},
+    {name: 'contact', title: 'Contacto y precios', default: true},
     {name: 'hero', title: 'Portada'},
     {name: 'safety', title: 'Seguridad'},
     {name: 'whyUs', title: 'Por qué elegirnos'},
     {name: 'about', title: 'Nosotros'},
     {name: 'custom', title: 'Tour personalizado'},
     {name: 'booking', title: 'Política de reserva'},
+    {name: 'google', title: 'Reseñas de Google'},
   ],
   fields: [
     // ── Contacto ───────────────────────────────────────────────
@@ -66,6 +67,22 @@ export const siteSettings = defineType({
       group: 'contact',
       description: 'Enlace completo, por ejemplo https://www.facebook.com/AventuraDeAlturaBolivia',
     }),
+    defineField({
+      name: 'contactLanguages',
+      title: 'Idiomas de atención',
+      type: 'localeText',
+      group: 'contact',
+      description: 'En qué idiomas atienden y si hay traductor para otros idiomas.',
+    }),
+    defineField({
+      name: 'exchangeRate',
+      title: 'Tipo de cambio USD → Bs',
+      type: 'number',
+      group: 'contact',
+      description:
+        'Opcional. Si se completa, la web muestra el precio aproximado en Bs junto al USD',
+      validation: (rule) => rule.positive(),
+    }),
 
     // ── Portada (hero) ─────────────────────────────────────────
     defineField({
@@ -74,6 +91,13 @@ export const siteSettings = defineType({
       type: 'localeString',
       group: 'hero',
       description: 'Por ejemplo: "Descubre Bolivia. Vive la aventura."',
+    }),
+    defineField({
+      name: 'heroCtaLabel',
+      title: 'Texto del botón principal',
+      type: 'localeString',
+      group: 'hero',
+      description: 'Botón que lleva a los tours. Por ejemplo: "Encuentra tu próxima aventura".',
     }),
     defineField({
       name: 'heroSubtitle',
@@ -176,6 +200,33 @@ export const siteSettings = defineType({
       type: 'localeText',
       group: 'booking',
       description: 'Se muestra en la sección de contacto.',
+    }),
+
+    // ── Reseñas de Google ──────────────────────────────────────
+    defineField({
+      name: 'googleRating',
+      title: 'Calificación en Google',
+      type: 'number',
+      group: 'google',
+      description:
+        'La nota promedio que aparece en Google, por ejemplo 4.9. Actualízala a mano de vez en cuando. Usa punto, no coma.',
+      validation: (rule) => rule.min(1).max(5).precision(1),
+    }),
+    defineField({
+      name: 'googleReviewCount',
+      title: 'Cantidad de reseñas en Google',
+      type: 'number',
+      group: 'google',
+      description: 'Cuántas reseñas tiene el perfil en Google, por ejemplo 87.',
+      validation: (rule) => rule.min(0).integer(),
+    }),
+    defineField({
+      name: 'googleReviewsUrl',
+      title: 'Enlace a las reseñas de Google',
+      type: 'url',
+      group: 'google',
+      description:
+        'Abre el perfil de la empresa en Google Maps, pulsa "Compartir" y pega aquí el enlace. La web lo usará en el botón "Ver reseñas en Google".',
     }),
   ],
   preview: {

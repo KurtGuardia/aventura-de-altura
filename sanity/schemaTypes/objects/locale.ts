@@ -10,23 +10,28 @@ const fieldTitles = {
 const enDescription =
   'Si lo dejas vacío, en la versión en inglés de la web se mostrará el texto en español.'
 
-/** Texto corto en dos idiomas (títulos, etiquetas, frases). */
+/**
+ * Texto corto en dos idiomas (títulos, etiquetas, frases).
+ * Usa un área de texto de 2 líneas (no un input de una línea) para que el
+ * texto completo se lea sin desplazarse con el cursor.
+ */
 export const localeString = defineType({
   name: 'localeString',
   title: 'Texto corto (ES / EN)',
   type: 'object',
-  options: {columns: 2},
   fields: [
     defineField({
       name: 'es',
       title: fieldTitles.es,
-      type: 'string',
+      type: 'text',
+      rows: 2,
       validation: (rule) => rule.required().error('El texto en español es obligatorio.'),
     }),
     defineField({
       name: 'en',
       title: fieldTitles.en,
-      type: 'string',
+      type: 'text',
+      rows: 2,
       description: enDescription,
     }),
   ],

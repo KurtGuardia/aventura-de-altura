@@ -15,35 +15,42 @@ Proyecto paralelo con alcance cerrado. Prioriza soluciones simples, mantenibles 
 |---|---|
 | `/[lang]` | Home (landing), `lang` = `es` \| `en` |
 | `/[lang]/tours/[slug]` | Detalle de tour (`generateStaticParams` + `generateMetadata` desde Sanity) |
+| `/[lang]/galeria` | Galería completa (todas las fotos, lazy loading nativo, lightbox) |
 | `/studio` | Sanity Studio (fuera de `[lang]`) |
 | `/` | Redirige a `/es` (o `/en` según Accept-Language) |
+
+Idiomas no soportados (ej. `/fr`) → 404.
 
 ## i18n
 - **Contenido editable** (Sanity): campos por idioma `{ es, en }` dentro del mismo documento. El español es obligatorio; el inglés es opcional y, si falta, se muestra el español como respaldo.
 - **Textos fijos de UI** (botones, labels): `dictionaries/es.json` y `dictionaries/en.json`, cargados con `getDictionary(lang)` de `lib/i18n.ts`.
-- **Traducción**: botón en el Studio que traduce ES → EN con la API de DeepL (plan gratuito) y **guarda** el resultado en Sanity. Nunca traducir en el navegador ni en tiempo de ejecución (SEO).
+- **Traducción**: botón "Traducir al inglés" en el Studio (API de DeepL, plan gratuito). Tras pedir confirmación, **sobrescribe todo el EN** del documento con la traducción del ES y lo **guarda** en Sanity. Nunca traducir en el navegador ni en tiempo de ejecución (SEO).
 - `hreflang` ES/EN en todas las páginas.
 
 ## Home (orden de secciones)
 1. Hero: "Descubre Bolivia. Vive la aventura." + CTA hacia los tours
 2. Tours destacados (tarjetas con foto, duración, tipo y "desde USD X", enlazadas a `/tours/[slug]`)
-2. 2b: Tour personalizado: "Arma tu propio tour por Bolivia" + CTA a WhatsApp
-3. Seguridad y calidad (el diferenciador principal)
-4. Por qué elegirnos
-5. Nosotros
-6. Testimonios
-7. Galería (grid + lightbox)
-8. Contacto (WhatsApp, correo, idiomas, política de reserva)
+3. Tour personalizado: "Arma tu propio tour por Bolivia" + CTA "Arma tu tour" a WhatsApp
+4. Seguridad y calidad (el diferenciador principal)
+5. Por qué elegirnos
+6. Nosotros
+7. Testimonios (reseñas de Google curadas a mano + calificación y nº de reseñas)
+8. Galería: vista previa de 6 fotos + "Ver galería" (→ `/[lang]/galeria`)
+9. Contacto (WhatsApp, correo, idiomas, política de reserva)
 
 ## Página de tour (orden)
 Portada → Datos rápidos (duración, dificultad, altitud, salida, idiomas) → Lo mejor del tour → Descripción → Itinerario → Incluye / No incluye → Requisitos y qué llevar → Precios → Galería → Notas → Otros tours.
 CTA "Consultar disponibilidad" por WhatsApp, **fijo en móvil**, con el mensaje prellenado con el nombre del tour.
 
 ## Modelo de datos (Sanity)
-Documentos: `tour`, `siteSettings` (singleton: contacto, WhatsApp, textos de la home), `testimonial`, `galleryImage`.
+Documentos:
+- `tour` (ver abajo) y `tourCategory` (tipos de tour, editables por el cliente).
+- `siteSettings` (singleton): contacto y WhatsApp, `exchangeRate?` (USD → Bs, manual), textos de la home, sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
+- `testimonial`: `name`, `country?`, `rating` (1–5), `text` (loc), `date?`, `sourceUrl?`, `order`.
+- `gallery` (singleton): `images[]` → `image` (hotspot), `alt?` (loc), `tour?` (referencia a `tour`).
 
 `tour`:
-- `title` (loc), `slug`, `category`, `tagline` (loc, máx. 90 caracteres), `coverImage` (con alt)
+- `title` (loc), `slug`, `categories[]` (referencias a `tourCategory`, uno o varios), `tagline` (loc, máx. 90 caracteres), `coverImage` (con alt)
 - `quickFacts`: `difficulty` (baja | media | alta), `altitude?`, `departureCity`, `languages`
 - `highlights[]`: `title` (loc), `text` (loc), `image`, entre 3 y 5
 - `description` (loc, máx. ~60 palabras)
@@ -53,6 +60,7 @@ Documentos: `tour`, `siteSettings` (singleton: contacto, WhatsApp, textos de la 
 
 Reglas:
 - "Desde USD X" = mínimo de `p5plus` entre las opciones con precio, **calculado en el código**.
+- Precios solo en USD. Si existe `exchangeRate`, `/es` muestra además "≈ Bs X".
 - Campos opcionales vacíos → **la sección no se renderiza** (nunca mostrar huecos ni "pendiente").
 - Usar `validation.warning` (no `error`) para marcar en el Studio lo que falta completar en cada tour.
 - Etiquetas y descripciones del Studio en español claro, pensadas para un usuario no técnico.
@@ -69,17 +77,18 @@ Aventura premium, fotos reales y grandes. Paleta: verde profundo (naturaleza), a
 ## Contacto
 - WhatsApp: +591 76922077 / +591 68500428
 - Facebook: https://www.facebook.com/AventuraDeAlturaBolivia
-- Idiomas de atención: ES / EN; francés, alemán y portugués con traductor (USD 50 por grupo)
+- Idiomas de atención: ES / EN. **No** se ofrecen otros idiomas ni servicio de traductor.
 
 ## Reglas de trabajo
 - **No inventar datos** (precios, horarios, requisitos, dificultad). Si faltan, dejar el campo vacío y avisar.
-- La fuente de verdad del contenido es `02-tours.md` (extraído de los Canva del cliente).
+- La fuente de verdad del contenido es `docs/02-tours.md` (extraído de los Canva del cliente).
+- **No re-ejecutar los scripts de seed** (`scripts/seed*.ts`) una vez que el cliente haya editado contenido en el Studio: sobrescriben sus cambios. Para corregir datos reales, usar patches puntuales.
 - **Fuera de alcance**: reservas, pagos, CRM, páginas por destino, blog. Si algo lo excede, avisar antes de implementarlo.
 - Sin dependencias innecesarias. Componentes de servidor por defecto; `"use client"` solo donde haga falta (lightbox, menú móvil).
 - Antes de dar algo por terminado: `npm run build` debe pasar sin errores.
-- Registrar las decisiones relevantes en `04-decisiones.md`.
+- Registrar las decisiones relevantes en `docs/04-decisiones.md` (fecha, decisión, motivo, alternativas descartadas).
 
 ## Comandos
 - `npm run dev` → http://localhost:3000 (Studio en `/studio`)
 - `npm run build` → verificación antes de cada push
-- Variables de entorno: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_REVALIDATE_SECRET`, `DEEPL_API_KEY`
+- Variables de entorno: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_REVALIDATE_SECRET`, `DEEPL_API_KEY`, `SANITY_API_WRITE_TOKEN` (solo scripts de seed)
