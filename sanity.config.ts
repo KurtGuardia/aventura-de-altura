@@ -9,6 +9,7 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 
 // Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
+import {TRANSLATABLE_TYPES, TranslateAction} from './sanity/actions/TranslateAction'
 import {apiVersion, dataset, projectId} from './sanity/env'
 import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
@@ -30,10 +31,12 @@ export default defineConfig({
     templates: (templates) => templates.filter(({schemaType}) => !singletonTypes.has(schemaType)),
   },
   document: {
-    actions: (actions, {schemaType}) =>
-      singletonTypes.has(schemaType)
+    actions: (actions, {schemaType}) => {
+      const base = singletonTypes.has(schemaType)
         ? actions.filter(({action}) => action && singletonActions.has(action))
-        : actions,
+        : actions
+      return TRANSLATABLE_TYPES.has(schemaType) ? [...base, TranslateAction] : base
+    },
   },
   plugins: [
     structureTool({structure}),

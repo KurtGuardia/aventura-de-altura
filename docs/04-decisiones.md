@@ -170,3 +170,17 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
 - **Motivo:** solo existen `es` y `en`; mostrar contenido en otro idioma sería engañoso.
 - **Alternativas descartadas:** redirigir al idioma por defecto conservando el resto de la ruta.
 - **Estado actual:** `proxy.ts` trata `/fr` como una ruta sin idioma y redirige (307) a `/es/fr`, que responde 404. El resultado final es un 404, pero pasando por una redirección.
+
+## 2026-11-06 · Botón "Traducir al inglés" en el Studio
+
+- **Decisión:**
+  - Document action "Traducir al inglés" en `tour`, `siteSettings`, `testimonial` y `gallery` (`sanity/actions/TranslateAction.ts`). Recorre el documento guiándose por el esquema y recoge todos los `localeString`/`localeText` con `es` no vacío, también dentro de objetos y arrays.
+  - Tras confirmar, envía todos los textos en **una sola petición** a `POST /api/translate` y aplica los `en` como patch sobre el **borrador**, sin publicar: el cliente revisa y publica.
+  - Todo lo específico de DeepL vive en `lib/translate.ts` (`translateTexts`). El endpoint (`api-free` o `api`) se elige según si la clave termina en `:fx`. Internamente parte en lotes de 50 textos, el máximo de DeepL.
+  - El endpoint solo acepta peticiones del mismo origen y como máximo 20.000 caracteres. Sin `DEEPL_API_KEY` responde 503 "Traducción no configurada todavía".
+- **Motivo:** traducción guardada en Sanity (buena para SEO) y sin acoplar la app a un proveedor concreto. El límite de caracteres protege la cuota gratuita de DeepL (500.000 caracteres al mes).
+- **Alternativas descartadas:**
+  - Traducir en el navegador o en tiempo de ejecución: peor para SEO y gasta cuota en cada visita.
+  - Llamar a DeepL desde el Studio: expondría la clave en el navegador.
+  - Publicar automáticamente: el cliente no podría revisar la traducción antes.
+- **Limitación conocida:** la comprobación de mismo origen evita que otras webs usen el endpoint desde el navegador, pero no es autenticación: un cliente que falsifique las cabeceras podría consumir cuota (como mucho 20.000 caracteres por petición).
