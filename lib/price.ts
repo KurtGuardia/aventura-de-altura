@@ -1,0 +1,51 @@
+import type { Dictionary, Locale } from "@/lib/i18n";
+import type { TourOptionSummary } from "@/lib/sanity/types";
+
+const numberLocale: Record<Locale, string> = { es: "es-BO", en: "en-US" };
+
+export function formatNumber(value: number, lang: Locale): string {
+  return new Intl.NumberFormat(numberLocale[lang], { maximumFractionDigits: 0 }).format(value);
+}
+
+/** Mínimo de `p5plus` entre las opciones que lo tienen. `null` si ninguna tiene precio. */
+export function minFromPrice(options: TourOptionSummary[] | null | undefined): number | null {
+  const prices = (options ?? [])
+    .map((o) => o.p5plus)
+    .filter((p): p is number => typeof p === "number" && p > 0);
+  return prices.length ? Math.min(...prices) : null;
+}
+
+/**
+ * "Desde USD 48" y, si hay tipo de cambio y el idioma es español,
+ * "(≈ Bs 624)" redondeado a entero. `null` si el tour no tiene precio.
+ */
+export function fromPriceLabel(
+  options: TourOptionSummary[] | null | undefined,
+  lang: Locale,
+  dict: Dictionary,
+  exchangeRate?: number | null,
+): { usd: string; bs?: string } | null {
+  const min = minFromPrice(options);
+  if (min == null) return null;
+  const usd = `${dict.labels.from} USD ${formatNumber(min, lang)}`;
+  const bs =
+    lang === "es" && exchangeRate && exchangeRate > 0
+      ? `(≈ Bs ${formatNumber(Math.round(min * exchangeRate), lang)})`
+      : undefined;
+  return { usd, bs };
+}
+
+/** "1 día", "3 días" o "1–3 días" según las opciones del tour. */
+export function durationLabel(
+  options: TourOptionSummary[] | null | undefined,
+  dict: Dictionary,
+): string | undefined {
+  const days = (options ?? [])
+    .map((o) => o.durationDays)
+    .filter((d): d is number => typeof d === "number" && d > 0);
+  if (!days.length) return undefined;
+  const min = Math.min(...days);
+  const max = Math.max(...days);
+  const unit = max === 1 ? dict.labels.day : dict.labels.days;
+  return min === max ? `${min} ${unit}` : `${min}–${max} ${unit}`;
+}

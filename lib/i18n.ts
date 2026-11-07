@@ -19,3 +19,10 @@ const dictionaries: Record<Locale, () => Promise<Dictionary>> = {
 export async function getDictionary(lang: Locale): Promise<Dictionary> {
   return dictionaries[lang]();
 }
+
+/** Sustituye los marcadores `{nombre}` de un texto del diccionario. */
+export function fill(template: string, vars: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in vars ? String(vars[key]) : match,
+  );
+}

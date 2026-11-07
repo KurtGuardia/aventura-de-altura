@@ -1,20 +1,76 @@
 {
+  "meta": {
+    "homeTitle": "Aventura de Altura · Adventure tours in Bolivia",
+    "homeDescription": "Adventure tour operator in Cochabamba, Bolivia. Trekking, high mountain, nature and culture tours.",
+    "galleryTitle": "Gallery",
+    "galleryDescription": "Photos from our adventure tours in Bolivia."
+  },
   "nav": {
     "home": "Home",
     "tours": "Tours",
-    "contact": "Contact"
+    "safety": "Safety",
+    "about": "About us",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "main": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "skipToContent": "Skip to content"
   },
   "buttons": {
     "viewTours": "View tours",
     "checkAvailability": "Check availability",
-    "contactWhatsApp": "Message us on WhatsApp"
+    "contactWhatsApp": "Message us on WhatsApp",
+    "customTour": "Build your tour",
+    "viewGallery": "View gallery",
+    "viewTour": "View tour",
+    "viewAllGoogle": "See all on Google",
+    "readReview": "Read original review"
   },
   "labels": {
     "from": "From",
+    "day": "day",
+    "days": "days",
     "duration": "Duration",
     "difficulty": "Difficulty",
     "altitude": "Altitude",
     "departure": "Departure",
-    "languages": "Languages"
+    "languages": "Languages",
+    "reviewsOnGoogle": "{count} reviews on Google",
+    "ratingOutOf5": "{rating} out of 5 stars"
+  },
+  "sections": {
+    "tours": "Featured tours",
+    "customTour": "Build your own tour of Bolivia",
+    "safety": "Safety and quality",
+    "whyUs": "Why choose us",
+    "about": "About us",
+    "testimonials": "What our travelers say",
+    "gallery": "Gallery",
+    "contact": "Contact"
+  },
+  "contact": {
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "languages": "Languages we speak",
+    "bookingPolicy": "Booking policy",
+    "facebook": "Facebook",
+    "followUs": "Follow us on Facebook"
+  },
+  "whatsapp": {
+    "general": "Hello, I would like information about your tours.",
+    "customTour": "Hello, I would like to plan a custom tour of Bolivia."
+  },
+  "gallery": {
+    "open": "Enlarge photo",
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "counter": "{current} of {total}",
+    "dialog": "Photo viewer"
+  },
+  "footer": {
+    "rights": "All rights reserved."
   }
 }

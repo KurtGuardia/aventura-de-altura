@@ -1,20 +1,76 @@
 {
+  "meta": {
+    "homeTitle": "Aventura de Altura · Tours de aventura en Bolivia",
+    "homeDescription": "Operadora de turismo de aventura en Cochabamba, Bolivia. Tours de trekking, alta montaña, naturaleza y cultura.",
+    "galleryTitle": "Galería",
+    "galleryDescription": "Fotos de nuestros tours de aventura en Bolivia."
+  },
   "nav": {
     "home": "Inicio",
     "tours": "Tours",
-    "contact": "Contacto"
+    "safety": "Seguridad",
+    "about": "Nosotros",
+    "gallery": "Galería",
+    "contact": "Contacto",
+    "main": "Navegación principal",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "language": "Idioma",
+    "skipToContent": "Saltar al contenido"
   },
   "buttons": {
     "viewTours": "Ver tours",
     "checkAvailability": "Consultar disponibilidad",
-    "contactWhatsApp": "Escríbenos por WhatsApp"
+    "contactWhatsApp": "Escríbenos por WhatsApp",
+    "customTour": "Arma tu tour",
+    "viewGallery": "Ver galería",
+    "viewTour": "Ver tour",
+    "viewAllGoogle": "Ver todas en Google",
+    "readReview": "Ver reseña original"
   },
   "labels": {
     "from": "Desde",
+    "day": "día",
+    "days": "días",
     "duration": "Duración",
     "difficulty": "Dificultad",
     "altitude": "Altitud",
     "departure": "Salida",
-    "languages": "Idiomas"
+    "languages": "Idiomas",
+    "reviewsOnGoogle": "{count} reseñas en Google",
+    "ratingOutOf5": "{rating} de 5 estrellas"
+  },
+  "sections": {
+    "tours": "Tours destacados",
+    "customTour": "Arma tu propio tour por Bolivia",
+    "safety": "Seguridad y calidad",
+    "whyUs": "Por qué elegirnos",
+    "about": "Nosotros",
+    "testimonials": "Lo que dicen nuestros viajeros",
+    "gallery": "Galería",
+    "contact": "Contacto"
+  },
+  "contact": {
+    "whatsapp": "WhatsApp",
+    "email": "Correo",
+    "languages": "Idiomas de atención",
+    "bookingPolicy": "Política de reserva",
+    "facebook": "Facebook",
+    "followUs": "Síguenos en Facebook"
+  },
+  "whatsapp": {
+    "general": "Hola, quisiera información sobre sus tours.",
+    "customTour": "Hola, quiero armar un tour personalizado por Bolivia."
+  },
+  "gallery": {
+    "open": "Ampliar foto",
+    "close": "Cerrar",
+    "previous": "Foto anterior",
+    "next": "Foto siguiente",
+    "counter": "{current} de {total}",
+    "dialog": "Visor de fotos"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados."
   }
 }

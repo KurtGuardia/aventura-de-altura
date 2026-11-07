@@ -184,3 +184,22 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - Llamar a DeepL desde el Studio: expondría la clave en el navegador.
   - Publicar automáticamente: el cliente no podría revisar la traducción antes.
 - **Limitación conocida:** la comprobación de mismo origen evita que otras webs usen el endpoint desde el navegador, pero no es autenticación: un cliente que falsifique las cabeceras podría consumir cuota (como mucho 20.000 caracteres por petición).
+
+## 2026-11-06 · Home, galería y capa de datos del frontend
+
+- **Decisión:**
+  - **Datos:** `lib/sanity/fetch.ts` lee Sanity sin CDN dentro de funciones `"use cache"` con `cacheLife("max")` y `cacheTag(<_type>)` (`siteSettings`, `tour`, `tourCategory`, `testimonial`, `gallery`). El webhook podrá usar `revalidateTag(_type)`. Las consultas están en `lib/sanity/queries.ts` (`defineQuery`) y los tipos se escriben a mano en `lib/sanity/types.ts` (sin TypeGen).
+  - **Imágenes:** `next-sanity/image` (loader del CDN de Sanity), no el optimizador de Next. El recorte con hotspot se pide a Sanity (`urlFor().width().height().fit("crop")`), y `object-position` usa el hotspot como respaldo.
+  - **Diseño:** Fraunces (display) + Manrope (texto) con `next/font`. Tokens `forest`, `sand`, `navy` en `app/globals.css`. Header sólido verde oscuro y fijo, sin transparencias que dependan del scroll.
+  - **Secciones vacías:** cada sección decide si se renderiza (`lib/sections.ts`). El header solo enlaza las anclas de las secciones visibles. Los títulos de sección usan el texto de Sanity y, si falta, el del diccionario.
+  - **Íconos de Seguridad:** el esquema no tiene campo de ícono; se asignan por posición (escudo, botiquín, montaña, brújula).
+  - **WhatsApp flotante:** solo en móvil y se incluye por página, no en el layout, para no chocar con el CTA fijo de la página de tour.
+  - **Galería:** componente cliente compartido (mosaico 1+5 en la home, cuadrícula en `/galeria`). El lightbox usa `<dialog>` nativo (foco atrapado, Esc, el foco vuelve a la miniatura) con flechas en escritorio y deslizamiento en móvil. El chip del tour solo aparece con `@media (hover: hover)` o con foco de teclado.
+  - **Testimonios en móvil:** carrusel con `scroll-snap` de CSS, sin JavaScript.
+  - **SEO:** `lib/seo.ts` genera canonical, hreflang (`es`, `en`, `x-default` → `es`) y Open Graph con la foto del hero recortada a 1200×630. La URL base sale de `NEXT_PUBLIC_SITE_URL`, si no de `URL` (Netlify), y si no de localhost.
+- **Motivo:** contenido estático y rápido que solo cambia cuando el cliente publica. Sin dependencias nuevas, y con JavaScript de cliente solo en el menú móvil, el selector de idioma y la galería.
+- **Alternativas descartadas:**
+  - `defineLive`/`SanityLive`: conexión en vivo innecesaria para un sitio que cambia poco.
+  - Optimizador de imágenes de Next en Netlify: duplica el trabajo del CDN de Sanity.
+  - Librerías de carrusel o lightbox: peso extra para algo que resuelven CSS y `<dialog>`.
+- **Pendiente:** el "desde" del City Tour no se muestra porque solo tiene precio para 3 personas (`p3`), sin `p5plus`.

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { isLocale } from "@/lib/i18n";
 
 // Con cacheComponents activo, generateStaticParams no puede devolver []
@@ -11,15 +12,25 @@ export function generateStaticParams() {
   return [{ slug: PLACEHOLDER_SLUG }];
 }
 
-export default async function TourPage({
-  params,
-}: PageProps<"/[lang]/tours/[slug]">) {
+// Con partialPrefetching, el App Shell se comparte entre todos los tours:
+// `params` no se puede leer fuera de <Suspense> o el shell quedaría atado a
+// una URL. La página pasa la promesa sin esperarla y el hijo la resuelve
+// dentro del límite.
+export default function TourPage({ params }: PageProps<"/[lang]/tours/[slug]">) {
+  return (
+    <Suspense fallback={<div className="min-h-[60vh]" />}>
+      <TourContent params={params} />
+    </Suspense>
+  );
+}
+
+async function TourContent({ params }: Pick<PageProps<"/[lang]/tours/[slug]">, "params">) {
   const { lang, slug } = await params;
   if (!isLocale(lang) || slug === PLACEHOLDER_SLUG) notFound();
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center p-8">
+    <div className="flex flex-col items-center justify-center p-8">
       <h1 className="text-3xl font-semibold">Tour: {slug}</h1>
-    </main>
+    </div>
   );
 }
