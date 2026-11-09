@@ -202,4 +202,29 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - `defineLive`/`SanityLive`: conexión en vivo innecesaria para un sitio que cambia poco.
   - Optimizador de imágenes de Next en Netlify: duplica el trabajo del CDN de Sanity.
   - Librerías de carrusel o lightbox: peso extra para algo que resuelven CSS y `<dialog>`.
-- **Pendiente:** el "desde" del City Tour no se muestra porque solo tiene precio para 3 personas (`p3`), sin `p5plus`.
+- **Pendiente (resuelto el 2026-11-09):** el "desde" del City Tour no se mostraba porque solo tiene precio para 3 personas. Ver "Precio desde: mínimo de todas las franjas".
+
+## 2026-11-09 · Precio "desde": mínimo de todas las franjas
+
+- **Decisión:** "Desde USD X" es el mínimo de **todos** los precios por persona disponibles (`p1`–`p5plus`) en todas las opciones del tour, ignorando los vacíos. Si el tour no tiene ningún precio, no se muestra. Reemplaza la regla anterior (mínimo de `p5plus`) de "Modelo de datos del tour".
+- **Motivo:** el City Tour solo tiene precio para 3 personas (`p3`), así que con la regla anterior su tarjeta no mostraba ningún precio. En los demás tours el resultado no cambia, porque `p5plus` ya es su precio más bajo.
+- **Alternativas descartadas:**
+  - Mantener `p5plus`: deja sin precio a cualquier tour con la grilla incompleta.
+  - Mostrar "Consultar precio": oculta un precio que sí existe.
+
+## 2026-11-09 · Textos iniciales de Seguridad, Por qué elegirnos y Tour personalizado
+
+- **Decisión:**
+  - `scripts/seed-sections.ts` carga un borrador ES/EN de esas tres secciones en `siteSettings`, más una foto provisional para Tour personalizado y otra para Nosotros.
+  - Usa `setIfMissing` campo por campo: no sobrescribe lo que el cliente ya escribió, así que se puede volver a ejecutar sin riesgo (a diferencia de `seed.ts`).
+  - Solo usa hechos de `01-briefing.md` y `02-tours.md`, sin certificaciones, cifras ni años de experiencia.
+- **Motivo:** las tres secciones estaban vacías y no se mostraban; entre ellas, Seguridad, el diferenciador principal.
+- **Pendiente de confirmar con el cliente:** "Guía coordinador 24/7" solo figura en el Canva de Toro Toro; el texto no dice que aplique a todos los tours, pero así se presenta en la sección general.
+
+## 2026-11-09 · "Nosotros" con una sola foto y footer mínimo
+
+- **Decisión:**
+  - `about.images` (fotos del equipo, vacío) se reemplaza por `about.image`, una sola foto con texto alternativo ES/EN. Con foto, la sección va a dos columnas en escritorio y apilada en móvil. Sin foto, solo texto en un bloque más compacto.
+  - El footer deja de repetir los datos de contacto: muestra el nombre, "Cochabamba, Bolivia", enlaces a Tours, Galería y Contacto, el ícono de Facebook y el copyright. Los datos de contacto viven solo en la sección Contacto.
+- **Motivo:** un único campo de foto es más claro para el cliente y encaja con el diseño a dos columnas. Repetir WhatsApp, idiomas y Facebook en el footer, justo debajo de Contacto, duplicaba la información.
+- **Alternativas descartadas:** mantener las fotos del equipo en una cuadrícula; un footer con todos los datos de contacto.

@@ -33,7 +33,7 @@ export type SiteSettings = {
   about?: {
     title?: LocaleValue | null;
     text?: LocaleValue | null;
-    images?: (SanityImage & { _key: string })[] | null;
+    image?: SanityImage | null;
   } | null;
   customTour?: {
     title?: LocaleValue | null;
@@ -47,7 +47,10 @@ export type SiteSettings = {
   googleReviewsUrl?: string | null;
 };
 
-export type TourOptionSummary = { durationDays?: number | null; p5plus?: number | null };
+/** Precios por persona en USD según el tamaño del grupo. */
+export type TourPrices = Partial<Record<"p1" | "p2" | "p3" | "p4" | "p5plus", number | null>>;
+
+export type TourOptionSummary = { durationDays?: number | null; prices?: TourPrices | null };
 
 export type TourCard = {
   _id: string;

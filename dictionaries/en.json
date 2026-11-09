@@ -71,6 +71,7 @@
     "dialog": "Photo viewer"
   },
   "footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "nav": "Footer links"
   }
 }

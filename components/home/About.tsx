@@ -11,26 +11,39 @@ export function About({ lang, dict, settings }: { lang: Locale; dict: Dictionary
   const section = settings?.about;
   const title = t(section?.title, lang) ?? dict.sections.about;
   const text = paragraphs(t(section?.text, lang));
-  const images = (section?.images ?? []).filter((img) => img.asset).slice(0, 3);
+  const image = section?.image?.asset ? section.image : null;
 
+  const heading = (
+    <h2 className="font-display text-4xl leading-[1.05] tracking-tight text-forest-950 md:text-5xl">{title}</h2>
+  );
+  const body = (
+    <Paragraphs items={text} className="text-lg leading-relaxed text-stone-700 md:text-xl md:leading-relaxed" />
+  );
+
+  // Sin foto: solo texto, en un bloque compacto.
+  if (!image) {
+    return (
+      <section id="nosotros" className="bg-sand-100 py-16 md:py-20">
+        <div className={container}>
+          <div className="max-w-3xl">
+            {heading}
+            <div className="mt-6">{body}</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Con foto: apilada en móvil, dos columnas (foto + texto) en escritorio.
   return (
     <section id="nosotros" className={`bg-sand-100 ${sectionY}`}>
-      <div className={`${container} grid gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-16`}>
-        <h2 className="font-display text-4xl leading-[1.05] tracking-tight text-forest-950 md:text-5xl">{title}</h2>
+      <div className={`${container} grid items-center gap-10 md:grid-cols-2 md:gap-16`}>
+        <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-sand-200">
+          <SanityImage image={image} lang={lang} aspect={4 / 5} sizes="(min-width: 768px) 50vw, 100vw" />
+        </div>
         <div>
-          <Paragraphs items={text} className="text-lg leading-relaxed text-stone-700 md:text-xl md:leading-relaxed" />
-          {images.length > 0 && (
-            <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {images.map((image, i) => (
-                <li
-                  key={image._key}
-                  className={`relative aspect-[4/5] overflow-hidden rounded-sm bg-sand-200 ${i === 2 ? "hidden sm:block" : ""}`}
-                >
-                  <SanityImage image={image} lang={lang} aspect={4 / 5} sizes="(min-width: 768px) 20vw, 50vw" />
-                </li>
-              ))}
-            </ul>
-          )}
+          {heading}
+          <div className="mt-6">{body}</div>
         </div>
       </div>
     </section>

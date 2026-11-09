@@ -51,6 +51,13 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     { href: `${home}#contacto`, label: dict.nav.contact },
   ].filter((link): link is NavLink => !!link);
 
+  // Footer: solo Tours, Galería y Contacto.
+  const footerLinks: NavLink[] = [
+    tours.length > 0 && { href: `${home}#tours`, label: dict.nav.tours },
+    gallery.length > 0 && { href: `${home}/galeria`, label: dict.nav.gallery },
+    { href: `${home}#contacto`, label: dict.nav.contact },
+  ].filter((link): link is NavLink => !!link);
+
   return (
     // data-scroll-behavior: Next desactiva el scroll suave durante los cambios de ruta.
     <html lang={lang} data-scroll-behavior="smooth" className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}>
@@ -59,7 +66,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         <main id="contenido" className="flex-1">
           {children}
         </main>
-        <Footer lang={lang} dict={dict} settings={settings} />
+        <Footer dict={dict} links={footerLinks} facebook={settings?.facebook} />
       </body>
     </html>
   );

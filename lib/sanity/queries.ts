@@ -7,7 +7,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   heroTitle, heroSubtitle, heroCtaLabel, heroImage{${IMAGE}},
   safety{title, intro, items[]{_key, title, text}, image{${IMAGE}}},
   whyUs{title, items[]{_key, title, text}},
-  about{title, text, images[]{_key, ${IMAGE}}},
+  about{title, text, image{${IMAGE}}},
   customTour{title, text, buttonLabel, image{${IMAGE}}},
   bookingPolicy,
   googleRating, googleReviewCount, googleReviewsUrl
@@ -22,7 +22,7 @@ export const FEATURED_TOURS_QUERY = defineQuery(`*[
   tagline,
   coverImage{${IMAGE}},
   "categories": categories[]->title,
-  "options": options[]{durationDays, "p5plus": prices.p5plus}
+  "options": options[]{durationDays, prices}
 }`);
 
 export const TESTIMONIALS_QUERY = defineQuery(`*[_type == "testimonial"] | order(order asc, _createdAt desc){

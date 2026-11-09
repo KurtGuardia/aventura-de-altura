@@ -1,8 +1,8 @@
-import { Facebook, Mail, WhatsApp } from "@/components/icons";
-import type { Dictionary, Locale } from "@/lib/i18n";
-import { t } from "@/lib/sanity/locale";
-import type { SiteSettings } from "@/lib/sanity/types";
-import { siteName, whatsappHref } from "@/lib/site";
+import Link from "next/link";
+import { Facebook } from "@/components/icons";
+import type { Dictionary } from "@/lib/i18n";
+import { siteName } from "@/lib/site";
+import type { NavLink } from "./Header";
 
 // `new Date()` no se puede usar fuera de una caché con cacheComponents:
 // el año queda fijado en el build y se actualiza con cada despliegue.
@@ -11,75 +11,55 @@ async function currentYear() {
   return new Date().getFullYear();
 }
 
-export async function Footer({ lang, dict, settings }: { lang: Locale; dict: Dictionary; settings: SiteSettings | null }) {
+/**
+ * Footer mínimo. Los datos de contacto (WhatsApp, correo, idiomas) viven solo
+ * en la sección Contacto de la home para no repetirlos.
+ */
+export async function Footer({
+  dict,
+  links,
+  facebook,
+}: {
+  dict: Dictionary;
+  links: NavLink[];
+  facebook?: string | null;
+}) {
   const year = await currentYear();
-  const phones = [settings?.whatsappPrimary, settings?.whatsappSecondary].filter(
-    (p): p is string => !!p,
-  );
-  const languages = t(settings?.contactLanguages, lang);
 
   return (
     <footer className="bg-forest-950 text-white/70">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr] md:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 md:flex-row md:items-center md:justify-between md:px-8">
         <div>
           <p className="font-display text-2xl text-white">{siteName}</p>
-          <p className="mt-2 text-sm">Cochabamba, Bolivia</p>
-          {languages && <p className="mt-4 max-w-xs text-sm">{languages}</p>}
+          <p className="mt-1 text-sm">Cochabamba, Bolivia</p>
         </div>
 
-        {phones.length > 0 && (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sand-300">
-              {dict.contact.whatsapp}
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              {phones.map((phone) => (
-                <li key={phone}>
-                  <a
-                    href={whatsappHref(phone, dict.whatsapp.general) ?? undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 hover:text-white"
-                  >
-                    <WhatsApp className="size-4" />
-                    {phone}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {(settings?.email || settings?.facebook) && (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sand-300">
-              {dict.nav.contact}
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              {settings?.email && (
-                <li>
-                  <a href={`mailto:${settings.email}`} className="inline-flex items-center gap-2 hover:text-white">
-                    <Mail className="size-4" />
-                    {settings.email}
-                  </a>
-                </li>
-              )}
-              {settings?.facebook && (
-                <li>
-                  <a
-                    href={settings.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 hover:text-white"
-                  >
-                    <Facebook className="size-4" />
-                    {dict.contact.facebook}
-                  </a>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
+        <div className="flex items-center gap-8">
+          {links.length > 0 && (
+            <nav aria-label={dict.footer.nav}>
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                {links.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="hover:text-white">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+          {facebook && (
+            <a
+              href={facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={dict.contact.followUs}
+              className="flex size-10 shrink-0 items-center justify-center rounded-full ring-1 ring-white/20 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <Facebook className="size-5" />
+            </a>
+          )}
+        </div>
       </div>
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-6xl px-5 py-6 text-xs text-white/50 md:px-8">

@@ -7,10 +7,13 @@ export function formatNumber(value: number, lang: Locale): string {
   return new Intl.NumberFormat(numberLocale[lang], { maximumFractionDigits: 0 }).format(value);
 }
 
-/** Mínimo de `p5plus` entre las opciones que lo tienen. `null` si ninguna tiene precio. */
+/**
+ * Mínimo de todos los precios por persona (p1–p5plus) de todas las opciones,
+ * ignorando los vacíos. `null` si el tour no tiene ningún precio.
+ */
 export function minFromPrice(options: TourOptionSummary[] | null | undefined): number | null {
   const prices = (options ?? [])
-    .map((o) => o.p5plus)
+    .flatMap((o) => Object.values(o.prices ?? {}))
     .filter((p): p is number => typeof p === "number" && p > 0);
   return prices.length ? Math.min(...prices) : null;
 }

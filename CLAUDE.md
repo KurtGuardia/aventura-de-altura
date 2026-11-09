@@ -45,7 +45,7 @@ CTA "Consultar disponibilidad" por WhatsApp, **fijo en móvil**, con el mensaje 
 ## Modelo de datos (Sanity)
 Documentos:
 - `tour` (ver abajo) y `tourCategory` (tipos de tour, editables por el cliente).
-- `siteSettings` (singleton): contacto y WhatsApp, `exchangeRate?` (USD → Bs, manual), textos de la home, sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
+- `siteSettings` (singleton): contacto y WhatsApp, `exchangeRate?` (USD → Bs, manual), textos de la home (Nosotros con una foto `about.image`), sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
 - `testimonial`: `name`, `country?`, `rating` (1–5), `text` (loc), `date?`, `sourceUrl?`, `order`.
 - `gallery` (singleton): `images[]` → `image` (hotspot), `alt?` (loc), `tour?` (referencia a `tour`).
 
@@ -59,7 +59,7 @@ Documentos:
 - `featured` (boolean), `order` (number)
 
 Reglas:
-- "Desde USD X" = mínimo de `p5plus` entre las opciones con precio, **calculado en el código**.
+- "Desde USD X" = mínimo de **todos** los precios por persona disponibles (`p1`–`p5plus`) en todas las opciones, ignorando los vacíos, **calculado en el código**. Si el tour no tiene ningún precio, no se muestra.
 - Precios solo en USD. Si existe `exchangeRate`, `/es` muestra además "≈ Bs X".
 - Campos opcionales vacíos → **la sección no se renderiza** (nunca mostrar huecos ni "pendiente").
 - Usar `validation.warning` (no `error`) para marcar en el Studio lo que falta completar en cada tour.

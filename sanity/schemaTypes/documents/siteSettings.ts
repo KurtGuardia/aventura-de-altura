@@ -163,11 +163,11 @@ export const siteSettings = defineType({
         defineField({name: 'title', title: 'Título', type: 'localeString'}),
         defineField({name: 'text', title: 'Texto', type: 'localeText', description: 'Historia y equipo. Mejor párrafos cortos.'}),
         defineField({
-          name: 'images',
-          title: 'Fotos del equipo',
-          type: 'array',
-          of: [defineArrayMember({type: 'imageWithAlt'})],
-          options: {layout: 'grid'},
+          name: 'image',
+          title: 'Foto',
+          type: 'imageWithAlt',
+          description:
+            'Una foto del equipo o de un grupo de viajeros. Aparece junto al texto. Si la dejas vacía, la sección se muestra solo con texto.',
         }),
       ],
     }),

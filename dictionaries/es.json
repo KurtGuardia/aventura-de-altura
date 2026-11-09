@@ -71,6 +71,7 @@
     "dialog": "Visor de fotos"
   },
   "footer": {
-    "rights": "Todos los derechos reservados."
+    "rights": "Todos los derechos reservados.",
+    "nav": "Enlaces del pie de página"
   }
 }
