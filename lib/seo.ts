@@ -3,7 +3,7 @@ import { locales, type Locale } from "@/lib/i18n";
 import { urlFor } from "@/lib/sanity/image";
 import { t } from "@/lib/sanity/locale";
 import type { SanityImage } from "@/lib/sanity/types";
-import { siteName } from "@/lib/site";
+import { siteName, siteUrl } from "@/lib/site";
 
 const ogLocale: Record<Locale, string> = { es: "es_BO", en: "en_US" };
 
@@ -63,4 +63,58 @@ export function pageMetadata({
       images: ogImage ? [ogImage.url] : undefined,
     },
   };
+}
+
+/**
+ * JSON-LD `TouristTrip` del detalle de tour. Solo incluye datos existentes:
+ * sin descripción, foto o precios, esas propiedades no se emiten.
+ */
+export function tourJsonLd({
+  lang,
+  slug,
+  name,
+  description,
+  image,
+  prices,
+  telephone,
+}: {
+  lang: Locale;
+  slug: string;
+  name: string;
+  description?: string;
+  image?: SanityImage | null;
+  /** Todos los precios por persona en USD (de todas las opciones). */
+  prices: number[];
+  telephone?: string | null;
+}) {
+  const url = `${siteUrl}/${lang}/tours/${slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name,
+    url,
+    inLanguage: lang,
+    ...(description && { description }),
+    ...(image?.asset && { image: [urlFor(image).width(1200).height(630).fit("crop").auto("format").url()] }),
+    ...(prices.length > 0 && {
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "USD",
+        lowPrice: Math.min(...prices),
+        highPrice: Math.max(...prices),
+        url,
+      },
+    }),
+    provider: {
+      "@type": "TravelAgency",
+      name: siteName,
+      url: siteUrl,
+      ...(telephone && { telephone }),
+    },
+  };
+}
+
+/** `<script type="application/ld+json">` seguro (escapa `<` para no cerrar la etiqueta). */
+export function jsonLdScript(data: object) {
+  return { __html: JSON.stringify(data).replace(/</g, "\\u003c") };
 }

@@ -79,7 +79,7 @@ export function WhyUsCarousel({ items, labels }: { items: Item[]; labels: { caro
       <div aria-hidden="true" className="mt-10 flex items-center gap-5">
         <span className="label-mono tabular-nums text-navy-950">
           {String(selected + 1).padStart(2, "0")}
-          <span className="text-navy-950/40"> / {String(items.length).padStart(2, "0")}</span>
+          <span className="text-navy-950/60"> / {String(items.length).padStart(2, "0")}</span>
         </span>
         <span className="flex flex-1 gap-1.5">
           {items.map((item, i) => (

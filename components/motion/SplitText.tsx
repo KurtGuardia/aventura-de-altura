@@ -22,10 +22,17 @@ type Props = {
 // Cada palabra sube desde detrás de una máscara (overflow hidden). El relleno
 // vertical evita recortar tildes y descendentes con interlineados ajustados.
 const MASK = "inline-block overflow-hidden pt-[0.14em] -mt-[0.14em] pb-[0.08em] -mb-[0.08em] align-top";
+// Máscara del sufijo (por ejemplo, la palabra rotativa del hero): deja margen
+// de sobra para que la palabra que entra o sale no se corte. El padding y el
+// margen negativo se compensan, así que no cambia el layout.
+const SUFFIX_MASK = "inline-block overflow-hidden pt-[0.5em] -mt-[0.5em] pb-[0.5em] -mb-[0.5em] align-top";
 
 /**
- * Título revelado palabra por palabra. Los lectores de pantalla leen el texto
- * completo (`sr-only`); las palabras animadas están ocultas para ellos.
+ * Título revelado palabra por palabra.
+ *
+ * Accesibilidad (regla común a las primitivas que duplican texto): hay una
+ * sola versión legible, el texto completo en `sr-only` (o `label`), y las
+ * copias visuales animadas van con `aria-hidden`.
  */
 export function SplitText({ text, as = "h2", className, delay = 0, trigger = "view", suffix, label }: Props) {
   const reduced = useReducedMotion();
@@ -61,7 +68,7 @@ export function SplitText({ text, as = "h2", className, delay = 0, trigger = "vi
           </span>
         ))}
         {suffix && (
-          <span className={MASK}>
+          <span className={SUFFIX_MASK}>
             <m.span data-reveal="" className="inline-block" variants={word}>
               {suffix}
             </m.span>

@@ -13,11 +13,17 @@ import { tourImageTransitionName, type TourCardView } from "@/lib/tours";
  *
  * La foto lleva una View Transition con nombre único por slug: al abrir el
  * detalle se expande hacia su portada (si el navegador lo soporta).
+ *
+ * `prefetch`: con Partial Prefetching, un enlace normal solo precarga el App
+ * Shell de la ruta, y el contenido del tour (que depende del slug) llegaría
+ * después, detrás del Suspense: sin morph. La precarga por enlace trae la
+ * página del tour (estática, servida desde caché) antes del clic.
  */
 export function TourCard({ tour, lang, sizes }: { tour: TourCardView; lang: Locale; sizes: string }) {
   return (
     <Link
       href={tour.href}
+      prefetch
       className="zoom-trigger group relative block aspect-[3/4] overflow-hidden rounded-card bg-navy-900 text-white shadow-card"
     >
       <ViewTransition name={tourImageTransitionName(tour.slug)} share="tour-morph" default="none">

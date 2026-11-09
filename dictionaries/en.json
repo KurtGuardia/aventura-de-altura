@@ -20,7 +20,8 @@
     "languageNames": {
       "es": "Español",
       "en": "English"
-    }
+    },
+    "breadcrumb": "Breadcrumb"
   },
   "buttons": {
     "viewTours": "View tours",
@@ -66,7 +67,11 @@
   },
   "whatsapp": {
     "general": "Hello, I would like information about your tours.",
-    "customTour": "Hello, I would like to plan a custom tour of Bolivia."
+    "customTour": "Hello, I would like to plan a custom tour of Bolivia.",
+    "tour": "Hi, I'm interested in {tour}{details}. Is it available?",
+    "tourOption": " ({option})",
+    "tourPeople": " for {n} people",
+    "tourPeopleOne": " for 1 person"
   },
   "gallery": {
     "open": "Enlarge photo",
@@ -112,5 +117,60 @@
   "whyUs": {
     "carousel": "Reasons to travel with us",
     "slide": "{current} of {total}"
+  },
+  "tour": {
+    "quickFacts": "Quick facts",
+    "altitudeUnit": "m a.s.l.",
+    "difficultyLevels": {
+      "baja": "Easy",
+      "media": "Moderate",
+      "alta": "Challenging"
+    },
+    "languageNames": {
+      "es": "Spanish",
+      "en": "English"
+    },
+    "highlights": "Tour highlights",
+    "highlightsCarousel": "Tour highlights",
+    "highlightSlide": "{current} of {total}",
+    "highlightGoTo": "Go to highlight {n}",
+    "about": "The tour",
+    "notes": "Notes",
+    "options": "Choose your option",
+    "optionN": "Option {n}",
+    "itinerary": "Itinerary",
+    "day": "Day {n}",
+    "lodging": "Lodging",
+    "noItinerary": "Customizable itinerary: ask us on WhatsApp.",
+    "includes": "Included",
+    "excludes": "Not included",
+    "requirements": "Requirements and what to bring",
+    "prices": "Prices",
+    "pricesFor": "Option: {option}",
+    "groupSize": "Group size",
+    "pricePerPerson": "Price per person",
+    "perPerson": "per person",
+    "tiers": {
+      "p1": "1 person",
+      "p2": "2 people",
+      "p3": "3 people",
+      "p4": "4 people",
+      "p5plus": "5 or more people"
+    },
+    "bestPrice": "Best price per person",
+    "pricesNote": "Prices per person in USD. Ask about availability and conditions on WhatsApp.",
+    "noPrices": "Message us and we'll send you the price for your group.",
+    "calculator": "Estimate your trip",
+    "people": "People",
+    "fewerPeople": "One person less",
+    "morePeople": "One person more",
+    "total": "Total",
+    "calculatorNoPrice": "There's no published price for {n}. Ask us on WhatsApp.",
+    "peopleCount": "{n} people",
+    "peopleCountOne": "1 person",
+    "gallery": "Tour gallery",
+    "cta": "Will you join this adventure?",
+    "otherTours": "Other tours",
+    "selectedOption": "Selected option"
   }
 }

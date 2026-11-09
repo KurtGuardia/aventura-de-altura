@@ -75,6 +75,48 @@ export type TourCard = {
   options?: TourOptionSummary[] | null;
 };
 
+export type Difficulty = "baja" | "media" | "alta";
+
+export type ItineraryItem = { _key: string; time?: string | null; text?: LocaleValue | null };
+export type ItineraryDay = { _key: string; day?: number | null; items?: ItineraryItem[] | null };
+
+export type TourOption = TourOptionSummary & {
+  _key: string;
+  label?: LocaleValue | null;
+  nights?: number | null;
+  lodging?: string | null;
+  itinerary?: ItineraryDay[] | null;
+};
+
+export type TourHighlight = {
+  _key: string;
+  title?: LocaleValue | null;
+  text?: LocaleValue | null;
+  image?: SanityImage | null;
+};
+
+/** Lista bilingüe (incluye, no incluye, requisitos): cada elemento trae su `_key`. */
+export type LocaleListItem = LocaleValue & { _key: string };
+
+/** Tour completo para la página de detalle (TOUR_PAGE_QUERY). */
+export type TourDetail = Omit<TourCard, "options"> & {
+  description?: LocaleValue | null;
+  quickFacts?: {
+    difficulty?: Difficulty | null;
+    altitude?: number | null;
+    departureCity?: string | null;
+    languages?: string[] | null;
+  } | null;
+  highlights?: TourHighlight[] | null;
+  options?: TourOption[] | null;
+  includes?: LocaleListItem[] | null;
+  excludes?: LocaleListItem[] | null;
+  requirements?: LocaleListItem[] | null;
+  notes?: LocaleValue | null;
+  gallery?: (SanityImage & { _key: string })[] | null;
+};
+
+export type TourPageData = { tour: TourDetail | null; others: TourCard[] | null };
 
 export type Testimonial = {
   _id: string;

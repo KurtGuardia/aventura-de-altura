@@ -20,7 +20,8 @@
     "languageNames": {
       "es": "Español",
       "en": "English"
-    }
+    },
+    "breadcrumb": "Ruta de navegación"
   },
   "buttons": {
     "viewTours": "Ver tours",
@@ -66,7 +67,11 @@
   },
   "whatsapp": {
     "general": "Hola, quisiera información sobre sus tours.",
-    "customTour": "Hola, quiero armar un tour personalizado por Bolivia."
+    "customTour": "Hola, quiero armar un tour personalizado por Bolivia.",
+    "tour": "Hola, me interesa el tour {tour}{details}. ¿Tienen disponibilidad?",
+    "tourOption": " ({option})",
+    "tourPeople": " para {n} personas",
+    "tourPeopleOne": " para 1 persona"
   },
   "gallery": {
     "open": "Ampliar foto",
@@ -112,5 +117,60 @@
   "whyUs": {
     "carousel": "Razones para viajar con nosotros",
     "slide": "{current} de {total}"
+  },
+  "tour": {
+    "quickFacts": "Datos rápidos",
+    "altitudeUnit": "msnm",
+    "difficultyLevels": {
+      "baja": "Baja",
+      "media": "Media",
+      "alta": "Alta"
+    },
+    "languageNames": {
+      "es": "Español",
+      "en": "Inglés"
+    },
+    "highlights": "Lo mejor del tour",
+    "highlightsCarousel": "Lo mejor del tour",
+    "highlightSlide": "{current} de {total}",
+    "highlightGoTo": "Ir al atractivo {n}",
+    "about": "El tour",
+    "notes": "Notas",
+    "options": "Elige tu opción",
+    "optionN": "Opción {n}",
+    "itinerary": "Itinerario",
+    "day": "Día {n}",
+    "lodging": "Alojamiento",
+    "noItinerary": "Itinerario personalizable: consúltanos por WhatsApp.",
+    "includes": "Incluye",
+    "excludes": "No incluye",
+    "requirements": "Requisitos y qué llevar",
+    "prices": "Precios",
+    "pricesFor": "Opción: {option}",
+    "groupSize": "Tamaño del grupo",
+    "pricePerPerson": "Precio por persona",
+    "perPerson": "por persona",
+    "tiers": {
+      "p1": "1 persona",
+      "p2": "2 personas",
+      "p3": "3 personas",
+      "p4": "4 personas",
+      "p5plus": "5 o más personas"
+    },
+    "bestPrice": "Mejor precio por persona",
+    "pricesNote": "Precios por persona en USD. Consulta disponibilidad y condiciones por WhatsApp.",
+    "noPrices": "Escríbenos y te enviamos el precio para tu grupo.",
+    "calculator": "Calcula tu viaje",
+    "people": "Personas",
+    "fewerPeople": "Una persona menos",
+    "morePeople": "Una persona más",
+    "total": "Total",
+    "calculatorNoPrice": "No hay precio publicado para {n}. Consúltanos por WhatsApp.",
+    "peopleCount": "{n} personas",
+    "peopleCountOne": "1 persona",
+    "gallery": "Galería del tour",
+    "cta": "¿Te sumas a esta aventura?",
+    "otherTours": "Otros tours",
+    "selectedOption": "Opción elegida"
   }
 }

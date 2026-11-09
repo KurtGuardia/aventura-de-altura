@@ -42,10 +42,12 @@ Ritmo oscuro/claro: cada sección tiene su fondo fijo (entre paréntesis).
 11. Contacto (oscuro): WhatsApp, correo, idiomas, política de reserva
 
 ## Página de tour (orden)
-Portada → Datos rápidos (duración, dificultad, altitud, salida, idiomas) → Lo mejor del tour → Descripción → Itinerario → Incluye / No incluye → Requisitos y qué llevar → Precios → Galería → Notas → Otros tours.
-CTA "Consultar disponibilidad" por WhatsApp, **fijo en móvil**, con el mensaje prellenado con el nombre del tour.
-- **View Transition (pendiente en el detalle):** la foto de la portada debe envolverse en `<ViewTransition name={tourImageTransitionName(slug)} share="tour-morph" default="none">` (de `react` y `lib/tours.ts`), igual que en `TourCard`, para que la foto de la tarjeta se expanda hacia ella. La portada debe renderizarse en el mismo commit que la navegación (no detrás de un fallback de Suspense) o no habrá morph.
-- "Otros tours" reutiliza `components/tours/TourCard.tsx` con `toTourCardView()`.
+`app/[lang]/tours/[slug]/page.tsx` + `components/tours/detail/*`. Datos: `TOUR_PAGE_QUERY` (tour + hasta 3 otros) vía `getTourPage(slug)` con tags `tour`, `tour:<slug>` y `tourCategory`; la vista por idioma sale de `toTourDetailView()` (`lib/tour-detail.ts`).
+Ritmo: Portada (oscuro, ~85svh, parallax, migas de pan, CTA + "desde") → Datos rápidos (claro; duración, dificultad, altitud con `CountUp`, salida, idiomas) → Lo mejor del tour (oscuro; escritorio: lista + foto sticky en crossfade; móvil: carrusel embla; sin foto propia usa la portada) → bloque claro a 2 columnas con tarjeta lateral sticky: Descripción + Notas → Opciones (tabs, solo si hay >1) + Itinerario (ruta que se dibuja con el scroll; acordeón en móvil; sin itinerario → aviso con CTA) → Incluye / No incluye → Requisitos (tarjeta oscura) → Precios (tabla por tramo + mejor precio + calculadora 1–10) → Galería (arena, `Gallery` mosaico sin chip de tour) → CTA final (`FinalCta` con `title`/`actions`) → Otros tours (`TourCard`).
+- **Estado compartido** (`TourBookingProvider`): opción elegida en la URL (`?opcion=1-dia|2-dias|…`, igual en ES/EN; el selector de idioma conserva la query) y nº de personas de la calculadora. Todos los CTA usan `BookingWhatsAppLink`, con el mensaje de `dict.whatsapp.tour` + opción (si hay varias) + personas (si se usó la calculadora).
+- **CTA móvil/tablet** (<1024px): barra fija inferior (`TourMobileBar`) tras pasar la portada, con safe-area; reemplaza a `WhatsAppFloat` (no se incluye en esta página). Escritorio: `TourStickyCard`.
+- **View Transition:** la portada usa `<ViewTransition name={tourImageTransitionName(slug)} share="tour-morph" default="none">` como `TourCard`. `TourCard` usa `prefetch` para que el detalle llegue en el mismo commit de la navegación (con Partial Prefetching un enlace normal solo trae el App Shell y no habría morph).
+- **SEO:** metadata por idioma (`Nombre · Aventura de Altura`, tagline o descripción, OG con la portada, canonical y hreflang) y JSON-LD `TouristTrip` (`tourJsonLd` en `lib/seo.ts`, oferta "desde" como `AggregateOffer` en USD).
 
 ## UI y movimiento
 Dirección: "revista de expedición" — fotos enormes, tipografía protagonista, ritmo oscuro/claro y movimiento con propósito (guiar hacia un tour o un CTA).

@@ -13,6 +13,11 @@ const INTERVAL_MS = 5200;
 /**
  * Datos curiosos de Bolivia que se alternan en la portada. Reserva el alto del
  * dato más largo (sin saltos). Con "menos movimiento" se queda en el primero.
+ *
+ * Es decorativo para lectores de pantalla (`aria-hidden`): los mismos datos
+ * están completos y sin animación en la lista accesible de "Bolivia en
+ * cifras" (<FactsGrid>), que se renderiza siempre que hay datos. Así no se
+ * leen dos veces ni cambian mientras se leen.
  */
 export function FactTicker({ facts, lang, label }: { facts: FactView[]; lang: Locale; label: string }) {
   const reduced = useReducedMotion();
@@ -40,7 +45,7 @@ export function FactTicker({ facts, lang, label }: { facts: FactView[]; lang: Lo
   );
 
   return (
-    <div className="min-w-0">
+    <div aria-hidden="true" className="min-w-0">
       <p className="label-mono flex items-center gap-2 text-ember-300">
         <span aria-hidden="true" className="size-1.5 rounded-full bg-ember-400" />
         {label}
@@ -48,7 +53,7 @@ export function FactTicker({ facts, lang, label }: { facts: FactView[]; lang: Lo
       <div className="relative mt-2 grid overflow-hidden">
         {/* Reservan el alto del dato más largo. */}
         {facts.map((f) => (
-          <p key={f.key} aria-hidden="true" className="invisible col-start-1 row-start-1">
+          <p key={f.key} className="invisible col-start-1 row-start-1">
             {body(f)}
           </p>
         ))}

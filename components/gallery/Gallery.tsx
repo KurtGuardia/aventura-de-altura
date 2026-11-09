@@ -17,19 +17,51 @@ type Props = {
   labels: LightboxLabels & { open: string };
 };
 
-const layouts = {
-  // Móvil: 2 columnas, la primera y la última a todo el ancho.
-  // Escritorio: 3 columnas, la primera ocupa 2×2.
+/**
+ * Mosaico sin huecos para cualquier nº de fotos (`n`): la vista previa de la
+ * home (6) y la galería de cada tour (normalmente 1–5).
+ * - Móvil: 2 columnas; la primera a todo el ancho y, si sobra una al final,
+ *   también la última.
+ * - Escritorio: 3 columnas; con 3 o más fotos la primera ocupa 2×2 y las de
+ *   la última fila incompleta se ensanchan para cerrarla. Con 1 o 2 fotos,
+ *   una franja apaisada.
+ */
+function mosaicTile(i: number, n: number) {
+  const mobile =
+    i === 0 ? "col-span-2 aspect-square" : (n - 1) % 2 === 1 && i === n - 1 ? "col-span-2 aspect-[2/1]" : "aspect-square";
+
+  let desktop = "md:col-span-1 md:aspect-square";
+  if (n === 1) desktop = "md:col-span-3 md:aspect-[3/1]";
+  else if (n === 2) desktop = i === 0 ? "md:col-span-2 md:aspect-[2/1]" : "md:col-span-1 md:aspect-auto";
+  else if (i === 0) desktop = "md:col-span-2 md:row-span-2 md:aspect-square";
+  else if (i >= 3) {
+    // Fotos después del bloque 2×2 + 2: filas de 3; la última fila puede quedar incompleta.
+    const lastRow = (n - 3) % 3;
+    const firstOfLastRow = n - lastRow;
+    if (lastRow === 1 && i === n - 1) desktop = "md:col-span-3 md:aspect-[3/1]";
+    else if (lastRow === 2 && i === firstOfLastRow) desktop = "md:col-span-2 md:aspect-[2/1]";
+  }
+  return `${mobile} ${desktop}`;
+}
+
+function mosaicSizes(i: number, n: number) {
+  const wide = i === 0 || n <= 2 || /md:col-span-[23]/.test(mosaicTile(i, n));
+  const fullMobile = /^col-span-2/.test(mosaicTile(i, n));
+  return `(min-width: 768px) ${wide ? "66vw" : "33vw"}, ${fullMobile ? "100vw" : "50vw"}`;
+}
+
+type Layout = {
+  list: string;
+  /** Clases de la foto `i` de `n`. */
+  tile: (i: number, n: number) => string;
+  sizes: (i: number, n: number) => string;
+};
+
+const layouts: Record<Props["variant"], Layout> = {
   mosaic: {
     list: "grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3",
-    tile: (i: number) =>
-      i === 0
-        ? "col-span-2 aspect-square md:row-span-2"
-        : i === 5
-          ? "col-span-2 aspect-[2/1] md:col-span-1 md:aspect-square"
-          : "aspect-square",
-    sizes: (i: number) =>
-      i === 0 ? "(min-width: 768px) 66vw, 100vw" : i === 5 ? "(min-width: 768px) 33vw, 100vw" : "(min-width: 768px) 33vw, 50vw",
+    tile: mosaicTile,
+    sizes: mosaicSizes,
   },
   // Columnas CSS: cada foto con su proporción original.
   masonry: {
@@ -103,7 +135,7 @@ export function Gallery({ items, variant, labels }: Props) {
                   initial: "hidden",
                   ...(reduced ? { animate: "show" } : { whileInView: "show", viewport: { once: true, amount: 0.2 } }),
                 })}
-            className={`zoom-trigger group relative overflow-hidden rounded-card bg-sand-200 ${layout.tile(i)}`}
+            className={`zoom-trigger group relative overflow-hidden rounded-card bg-sand-200 ${layout.tile(i, items.length)}`}
             style={variant === "masonry" ? { aspectRatio: `${item.width} / ${item.height}` } : undefined}
           >
             <button
@@ -117,7 +149,7 @@ export function Gallery({ items, variant, labels }: Props) {
                   src={variant === "masonry" ? item.full : item.thumb}
                   alt=""
                   fill
-                  sizes={layout.sizes(i)}
+                  sizes={layout.sizes(i, items.length)}
                   loading={eager(i) ? "eager" : "lazy"}
                   placeholder={item.lqip ? "blur" : "empty"}
                   blurDataURL={item.lqip}

@@ -289,3 +289,30 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
 - **Decisión:** un cambio cada 2,6 s (antes 1 s), normalmente de una celda (dos con un 20 % de probabilidad, antes 40 %) y permanencia mínima de 8 s por dato. Se añaden 4 datos con patch aditivo (La Paz 3.640 msnm, Illimani 6.438 msnm, Chacaltaya 5.421 msnm, Misiones de Chiquitos 6 pueblos): 16 en total.
 - **Motivo:** el humo dura ~2 s; con un cambio por segundo las bocanadas se encadenaban y el efecto se sentía apresurado.
 - **Alternativas descartadas:** acortar el humo (pierde el efecto de bocanada).
+
+## 2026-11-09 · Plantilla de detalle de tour
+
+- **Decisión:**
+  - **Datos:** una sola consulta (`TOUR_PAGE_QUERY`) trae el tour por slug y hasta 3 "otros tours" (por `order`). Caché con tags `tour`, `tour:<slug>` y `tourCategory`. `generateStaticParams` lista todos los slugs de Sanity (× es/en del layout); los tours nuevos se renderizan al pedirlos.
+  - **Opción en la URL:** la opción elegida se guarda en `?opcion=` (`1-dia`, `2-dias`… según la duración; `opcion-N` si se repite), con `history.replaceState` y sin `useSearchParams`, para que la página siga siendo estática. El selector ES/EN conserva la query.
+  - **Barra CTA móvil:** por debajo de 1024px, una barra fija inferior con el precio "desde" de la opción elegida y "Consultar disponibilidad" aparece al dejar atrás la portada y reemplaza al botón flotante de WhatsApp. En escritorio, una tarjeta lateral sticky acompaña desde la descripción hasta los precios.
+  - **Calculadora:** 1–10 personas; usa el tramo exacto (`p1`–`p4`) o `p5plus` para 5 o más. Si ese tramo no tiene precio, avisa y remite a WhatsApp (no se interpola). El nº de personas solo entra en el mensaje de WhatsApp si el usuario usó la calculadora.
+  - **Mensaje de WhatsApp:** plantillas en `dictionaries/*.json` (`whatsapp.tour` + `tourOption` + `tourPeople`). Los paréntesis de la etiqueta de la opción se pasan a comas para no anidarlos.
+  - **JSON-LD:** `TouristTrip` con nombre, descripción, foto, `AggregateOffer` (USD, `lowPrice` = "desde", `highPrice`) y proveedor `TravelAgency`; solo con los datos que existen.
+  - **Morph de la foto:** `TourCard` usa `prefetch` (precarga por enlace de Partial Prefetching) para que la portada del detalle llegue en el mismo commit que la navegación.
+  - **Reutilización:** `FinalCta` acepta `title` y `actions`; `Gallery` en modo mosaico se adapta a cualquier nº de fotos sin huecos (la home, con 6, queda igual).
+- **Motivo:** el detalle es la página que convierte: precios transparentes por grupo, un CTA siempre a mano y un mensaje de WhatsApp que ya llega con el tour, la opción y el tamaño del grupo. La opción en la URL permite compartir exactamente lo que se está viendo.
+- **Alternativas descartadas:**
+  - `useSearchParams` o leer `searchParams` en el servidor: la página dejaría de ser estática (renderizado en cliente detrás de un Suspense, o por petición).
+  - Mantener el botón flotante de WhatsApp en el detalle: se duplicaría con la barra.
+  - Interpolar precios para tramos vacíos: sería inventar precios.
+  - Un `Offer` por tramo en el JSON-LD: más ruido sin beneficio claro; el "desde" es lo que interesa.
+
+## 2026-11-09 · Ajustes previos de la home (palabra rotativa, accesibilidad, reseñas)
+
+- **Decisión:**
+  - **Palabra rotativa:** `WordRotator` deja de recortar (`overflow-hidden`) y cambia con un desplazamiento corto (40 %) + fundido; la máscara del sufijo en `SplitText` se amplía (padding y margen negativo que se compensan). Antes, con el interlineado 0,9 de los títulos, la palabra se cortaba por abajo durante el cambio.
+  - **Accesibilidad:** regla común a las primitivas que duplican texto: una sola versión legible (`sr-only` o `label`) y copias animadas con `aria-hidden`. `SplitText`, `WordRotator` y `CountUp` ya la cumplían; el "¿Sabías que?" del hero (`FactTicker`) pasa a `aria-hidden`, porque repetía los datos que ya están completos en la lista accesible de "Bolivia en cifras".
+  - **Reseñas de Google:** se cargaron las 2 reseñas de 5 estrellas en español visibles sin sesión en Google Maps (que solo muestra 5), con el texto tal cual, nombre "Nombre I.", `sourceUrl` = `googleReviewsUrl` y sin fecha (Google solo muestra "Hace 3 años"). Las otras 3 están en francés y portugués y no se usaron (el modelo es ES/EN y no se traduce a mano). Se borró el testimonio de prueba y `googleRating` pasó de 4,9 a 5,0 (publicado y borrador). Conviene completar más testimonios desde el Studio.
+- **Motivo:** feedback de la revisión de la home.
+- **Alternativas descartadas:** traducir o resumir reseñas (dejarían de ser reales); poner reseñas en francés o portugués en `text.es`.

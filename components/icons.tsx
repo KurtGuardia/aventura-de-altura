@@ -132,3 +132,51 @@ export const Instagram = (p: IconProps) => (
     <circle cx="17.3" cy="6.7" r="0.6" fill="currentColor" stroke="none" />
   </svg>
 );
+
+// Página de tour: datos rápidos, alojamiento, calculadora, incluye / no incluye.
+export const Gauge = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M4.5 17a8.5 8.5 0 1 1 15 0" />
+    <path d="M12 13.5l4-4.5" />
+    <circle cx="12" cy="14" r="1.2" />
+  </Stroke>
+);
+
+export const MapPin = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+    <circle cx="12" cy="10" r="2.4" />
+  </Stroke>
+);
+
+export const Bed = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M3 18V6M3 14h18v4M21 14v-2.5a3 3 0 0 0-3-3h-7v5.5" />
+    <circle cx="7" cy="11" r="1.8" />
+  </Stroke>
+);
+
+export const Users = (p: IconProps) => (
+  <Stroke {...p}>
+    <circle cx="9" cy="8.5" r="3.2" />
+    <path d="M3.5 19.5c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.6 14.9c1.6.7 2.6 2.4 2.9 4.6" />
+  </Stroke>
+);
+
+export const Plus = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Stroke>
+);
+
+export const Minus = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M5 12h14" />
+  </Stroke>
+);
+
+export const ChevronDown = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M5 9l7 7 7-7" />
+  </Stroke>
+);

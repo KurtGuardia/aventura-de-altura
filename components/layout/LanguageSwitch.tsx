@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLocationSearch } from "@/components/useLocationSearch";
 import { locales, type Locale } from "@/lib/i18n";
 
-/** ES / EN: cambia solo el primer segmento de la ruta actual (mantiene la página). */
+/**
+ * ES / EN: cambia solo el primer segmento de la ruta actual. Mantiene la
+ * página (también el slug del tour) y la query (por ejemplo, la opción
+ * elegida del tour, `?opcion=2-dias`).
+ */
 export function LanguageSwitch({
   lang,
   label,
@@ -19,6 +24,7 @@ export function LanguageSwitch({
 }) {
   const pathname = usePathname() ?? `/${lang}`;
   const rest = pathname.replace(/^\/[^/]+/, "");
+  const search = useLocationSearch();
 
   return (
     <nav aria-label={label} className={`label-mono flex items-center ${className}`}>
@@ -30,7 +36,7 @@ export function LanguageSwitch({
             </span>
           )}
           <Link
-            href={`/${locale}${rest}`}
+            href={`/${locale}${rest}${search}`}
             // Misma posición de la página: solo cambia el idioma, sin volver arriba.
             scroll={false}
             hrefLang={locale}

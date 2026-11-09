@@ -4,11 +4,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 /**
- * Páginas que empiezan con una cabecera oscura a pantalla completa (home y
- * galería): sobre ellas el header es transparente. En el resto es sólido
- * desde el principio y se reserva su altura para no tapar el contenido.
+ * Páginas que empiezan con una cabecera oscura a pantalla completa (home,
+ * galería y detalle de tour): sobre ellas el header es transparente. En el
+ * resto es sólido desde el principio y se reserva su altura para no tapar el
+ * contenido.
  */
-const OVERLAY_PATHS = /^\/[a-z]{2}(\/galeria)?\/?$/;
+const OVERLAY_PATHS = /^\/[a-z]{2}(\/galeria|\/tours\/[^/]+)?\/?$/;
 
 /**
  * Píxeles de scroll a partir de los cuales el header puede ocultarse. Sobre
