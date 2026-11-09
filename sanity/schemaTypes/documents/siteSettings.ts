@@ -21,6 +21,7 @@ export const siteSettings = defineType({
   groups: [
     {name: 'contact', title: 'Contacto y precios', default: true},
     {name: 'hero', title: 'Portada'},
+    {name: 'facts', title: 'Datos curiosos'},
     {name: 'safety', title: 'Seguridad'},
     {name: 'whyUs', title: 'Por qué elegirnos'},
     {name: 'about', title: 'Nosotros'},
@@ -68,6 +69,13 @@ export const siteSettings = defineType({
       description: 'Enlace completo, por ejemplo https://www.facebook.com/AventuraDeAlturaBolivia',
     }),
     defineField({
+      name: 'instagram',
+      title: 'Perfil de Instagram',
+      type: 'url',
+      group: 'contact',
+      description: 'Enlace completo, por ejemplo https://www.instagram.com/aventuradealturabolivia',
+    }),
+    defineField({
       name: 'contactLanguages',
       title: 'Idiomas de atención',
       type: 'localeText',
@@ -93,6 +101,20 @@ export const siteSettings = defineType({
       description: 'Por ejemplo: "Descubre Bolivia. Vive la aventura."',
     }),
     defineField({
+      name: 'heroRotatingWords',
+      title: 'Palabras que se alternan en el título',
+      type: 'array',
+      group: 'hero',
+      description:
+        'La última palabra del título se va cambiando por estas, una tras otra (por ejemplo: cumbre, historia, selva). Escribe una sola palabra por casilla. Si lo dejas vacío, el título queda fijo.',
+      of: [defineArrayMember({type: 'localeString', title: 'Palabra'})],
+      validation: (rule) =>
+        rule.custom((words?: {es?: string; en?: string}[]) => {
+          const multi = (words ?? []).some((w) => /\s/.test((w.es ?? '').trim()) || /\s/.test((w.en ?? '').trim()))
+          return multi ? 'Usa una sola palabra por casilla.' : true
+        }).warning(),
+    }),
+    defineField({
       name: 'heroCtaLabel',
       title: 'Texto del botón principal',
       type: 'localeString',
@@ -111,6 +133,59 @@ export const siteSettings = defineType({
       type: 'imageWithAlt',
       group: 'hero',
       description: 'Foto grande y horizontal que aparece al abrir la web.',
+    }),
+
+    // ── Datos curiosos ─────────────────────────────────────────
+    defineField({
+      name: 'funFacts',
+      title: 'Datos curiosos de Bolivia',
+      type: 'array',
+      group: 'facts',
+      description:
+        'Cifras sorprendentes de lugares de Bolivia. Se alternan en la portada y se muestran en la sección "Bolivia en cifras". En la sección se ven 6 a la vez y se van turnando: lo ideal son 12 o más.',
+      of: [
+        defineArrayMember({
+          name: 'funFact',
+          title: 'Dato',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'value',
+              title: 'Cifra',
+              type: 'number',
+              description: 'Solo el número, con punto para decimales. Por ejemplo 3812 o 34.2.',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'unit',
+              title: 'Unidad (opcional)',
+              type: 'localeString',
+              description: 'Va justo después de la cifra. Por ejemplo "msnm", "km²" o "huellas".',
+            }),
+            defineField({
+              name: 'place',
+              title: 'Lugar',
+              type: 'localeString',
+              description: 'Por ejemplo "Lago Titicaca".',
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: 'text',
+              title: 'Dato en pocas palabras',
+              type: 'localeString',
+              description: 'Una frase corta. Por ejemplo "El lago navegable más alto del mundo".',
+              validation: (rule) => rule.required(),
+            }),
+          ],
+          preview: {
+            select: {value: 'value', unit: 'unit.es', place: 'place.es', text: 'text.es'},
+            prepare: ({value, unit, place, text}) => ({
+              title: [value, unit].filter(Boolean).join(' ') + (place ? ` · ${place}` : ''),
+              subtitle: text,
+            }),
+          },
+        }),
+      ],
     }),
 
     // ── Seguridad ──────────────────────────────────────────────

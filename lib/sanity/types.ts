@@ -8,18 +8,31 @@ export type SanityImage = {
   crop?: { top: number; bottom: number; left: number; right: number } | null;
   hotspot?: { x: number; y: number; width: number; height: number } | null;
   alt?: LocaleValue | null;
+  /** Placeholder borroso (data URL) de los metadatos del asset. */
+  lqip?: string | null;
 };
 
 export type FeatureItem = { _key: string; title?: LocaleValue | null; text?: LocaleValue | null };
+
+export type FunFact = {
+  _key: string;
+  value?: number | null;
+  unit?: LocaleValue | null;
+  place?: LocaleValue | null;
+  text?: LocaleValue | null;
+};
 
 export type SiteSettings = {
   whatsappPrimary?: string | null;
   whatsappSecondary?: string | null;
   email?: string | null;
   facebook?: string | null;
+  instagram?: string | null;
   contactLanguages?: LocaleValue | null;
   exchangeRate?: number | null;
   heroTitle?: LocaleValue | null;
+  heroRotatingWords?: LocaleValue[] | null;
+  funFacts?: FunFact[] | null;
   heroSubtitle?: LocaleValue | null;
   heroCtaLabel?: LocaleValue | null;
   heroImage?: SanityImage | null;
@@ -61,6 +74,7 @@ export type TourCard = {
   categories?: (LocaleValue | null)[] | null;
   options?: TourOptionSummary[] | null;
 };
+
 
 export type Testimonial = {
   _id: string;

@@ -1,14 +1,18 @@
-import { Compass, FirstAid, Mountain, Shield } from "@/components/icons";
+import { MaskReveal } from "@/components/motion/MaskReveal";
+import { MountainDivider } from "@/components/MountainDivider";
 import { SanityImage } from "@/components/SanityImage";
-import { container, SectionHeading, sectionY } from "@/components/ui";
+import { container, SectionHeading } from "@/components/ui";
 import type { Dictionary, Locale } from "@/lib/i18n";
 import { t } from "@/lib/sanity/locale";
 import type { SiteSettings } from "@/lib/sanity/types";
 import { featureItems, hasSafety } from "@/lib/sections";
+import { SafetyRoute } from "./SafetyRoute";
 
-// Los puntos no tienen ícono propio en Sanity: se asignan por posición.
-const ICONS = [Shield, FirstAid, Mountain, Compass];
-
+/**
+ * Seguridad y calidad (diferenciador principal). Escritorio: título fijo
+ * (sticky) a la izquierda y los puntos como una ruta vertical a la derecha.
+ * Móvil: apilado, con la ruta a la izquierda.
+ */
 export function Safety({ lang, dict, settings }: { lang: Locale; dict: Dictionary; settings: SiteSettings | null }) {
   if (!hasSafety(settings, lang)) return null;
 
@@ -16,38 +20,24 @@ export function Safety({ lang, dict, settings }: { lang: Locale; dict: Dictionar
   const title = t(section?.title, lang) ?? dict.sections.safety;
   const intro = t(section?.intro, lang);
   const items = featureItems(section?.items, lang);
-  const hasImage = !!section?.image?.asset;
+  const image = section?.image?.asset ? section.image : null;
 
   return (
-    <section id="seguridad" className={`bg-navy-950 text-white ${sectionY}`}>
-      <div className={container}>
-        <div className={`grid gap-12 ${hasImage ? "lg:grid-cols-[1fr_1.1fr] lg:items-center lg:gap-20" : ""}`}>
-          <div>
+    <section id="seguridad" className="tone-dark grain relative bg-navy-950 pb-[calc(var(--spacing-section)+3rem)] pt-section">
+      <div className={`${container} grid gap-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-24`}>
+        <div>
+          <div className="lg:sticky lg:top-28">
             <SectionHeading title={title} intro={intro} tone="light" />
-            {items.length > 0 && (
-              <ul className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2">
-                {items.map((item, i) => {
-                  const Icon = ICONS[i % ICONS.length];
-                  return (
-                    <li key={item.key}>
-                      <span className="flex size-12 items-center justify-center rounded-full bg-white/8 text-sand-200 ring-1 ring-white/15">
-                        <Icon className="size-6" />
-                      </span>
-                      <h3 className="mt-5 font-display text-xl leading-snug">{item.title}</h3>
-                      {item.text && <p className="mt-2 leading-relaxed text-white/70">{item.text}</p>}
-                    </li>
-                  );
-                })}
-              </ul>
+            {image && (
+              <MaskReveal curtain="bg-navy-950" className="mt-12 hidden aspect-[4/3] rounded-card lg:block">
+                <SanityImage image={image} lang={lang} aspect={4 / 3} sizes="40vw" />
+              </MaskReveal>
             )}
           </div>
-          {hasImage && (
-            <div className="relative aspect-[4/5] overflow-hidden rounded-sm">
-              <SanityImage image={section?.image} lang={lang} aspect={4 / 5} sizes="(min-width: 1024px) 50vw, 100vw" />
-            </div>
-          )}
         </div>
+        {items.length > 0 && <SafetyRoute items={items} />}
       </div>
+      <MountainDivider className="text-cream" flip />
     </section>
   );
 }

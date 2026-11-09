@@ -3,8 +3,17 @@ import type { TourOptionSummary } from "@/lib/sanity/types";
 
 const numberLocale: Record<Locale, string> = { es: "es-BO", en: "en-US" };
 
-export function formatNumber(value: number, lang: Locale): string {
-  return new Intl.NumberFormat(numberLocale[lang], { maximumFractionDigits: 0 }).format(value);
+/**
+ * Número con el formato de cada idioma ("5.030" en es, "5,030" en en).
+ * Agrupa siempre los miles: en español Intl no agrupa los de 4 cifras.
+ */
+export function formatNumber(value: number, lang: Locale, decimals = 0): string {
+  return new Intl.NumberFormat(numberLocale[lang], {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    // "always" no está en los tipos de ES2017 del proyecto, pero sí en todos los navegadores actuales.
+    useGrouping: "always" as unknown as boolean,
+  }).format(value);
 }
 
 /**

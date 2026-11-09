@@ -28,24 +28,41 @@ Idiomas no soportados (ej. `/fr`) → 404.
 - `hreflang` ES/EN en todas las páginas.
 
 ## Home (orden de secciones)
-1. Hero: "Descubre Bolivia. Vive la aventura." + CTA hacia los tours
-2. Tours destacados (tarjetas con foto, duración, tipo y "desde USD X", enlazadas a `/tours/[slug]`)
-3. Tour personalizado: "Arma tu propio tour por Bolivia" + CTA "Arma tu tour" a WhatsApp
-4. Seguridad y calidad (el diferenciador principal)
-5. Por qué elegirnos
-6. Nosotros
-7. Testimonios (reseñas de Google curadas a mano + calificación y nº de reseñas)
-8. Galería: vista previa de 6 fotos + "Ver galería" (→ `/[lang]/galeria`)
-9. Contacto (WhatsApp, correo, idiomas, política de reserva)
+Ritmo oscuro/claro: cada sección tiene su fondo fijo (entre paréntesis).
+1. Hero (oscuro): "Descubre Bolivia. Vive la aventura." con la última palabra rotativa (`heroRotatingWords`, editable en el Studio) + CTA hacia los tours + "¿Sabías que?" con los datos curiosos (`funFacts`) alternándose. Slideshow con `heroImage` + portadas de los tours destacados.
+2. Tours destacados (claro): tarjetas con foto, duración, tipo y "desde USD X", enlazadas a `/tours/[slug]`
+3. Bolivia en cifras (oscuro): 6 celdas con los datos curiosos (`funFacts`) que se turnan (una cada 2,6 s, a veces dos, con una bocanada de humo blanco en canvas, `SmokeBurst`; nunca dos del mismo lugar a la vez). Lista completa en `sr-only`.
+4. Tour personalizado (foto a sangre): "Arma tu propio tour por Bolivia" + CTA "Arma tu tour" a WhatsApp
+5. Seguridad y calidad (oscuro, el diferenciador principal)
+6. Por qué elegirnos (claro): carrusel automático sin botones
+7. Nosotros (beige): curvas de nivel, sello-brújula con el logo que gira con el scroll, coordenadas y nota de Google
+8. Testimonios (claro): reseñas de Google curadas a mano + calificación y nº de reseñas
+9. Galería (claro): vista previa de 6 fotos + "Ver galería" al final (→ `/[lang]/galeria`)
+10. CTA final (foto oscura, `heroImage`): "¿Listo para tu próxima aventura?"
+11. Contacto (oscuro): WhatsApp, correo, idiomas, política de reserva
 
 ## Página de tour (orden)
 Portada → Datos rápidos (duración, dificultad, altitud, salida, idiomas) → Lo mejor del tour → Descripción → Itinerario → Incluye / No incluye → Requisitos y qué llevar → Precios → Galería → Notas → Otros tours.
 CTA "Consultar disponibilidad" por WhatsApp, **fijo en móvil**, con el mensaje prellenado con el nombre del tour.
+- **View Transition (pendiente en el detalle):** la foto de la portada debe envolverse en `<ViewTransition name={tourImageTransitionName(slug)} share="tour-morph" default="none">` (de `react` y `lib/tours.ts`), igual que en `TourCard`, para que la foto de la tarjeta se expanda hacia ella. La portada debe renderizarse en el mismo commit que la navegación (no detrás de un fallback de Suspense) o no habrá morph.
+- "Otros tours" reutiliza `components/tours/TourCard.tsx` con `toTourCardView()`.
+
+## UI y movimiento
+Dirección: "revista de expedición" — fotos enormes, tipografía protagonista, ritmo oscuro/claro y movimiento con propósito (guiar hacia un tour o un CTA).
+
+- **Tokens** (`app/globals.css`, `@theme`): colores `forest`, `sand`, `navy` (azul noche casi negro), `cream` (blanco cálido), `ember` (acento de CTAs, siempre con texto `navy-950`). Tipos `text-display-hero|xl|lg|md`, utilidades `label-mono` y `grain`, espaciados `py-section` y `px-gutter`, `rounded-card`, `shadow-card|float`, `ease-cinematic`. Las secciones oscuras llevan `tone-dark` (texto claro y anillo de foco `ember`). Variante `can-hover:` = solo ratón.
+- **Fuentes** (`next/font`): Anton (display, siempre en mayúsculas), Manrope (texto), IBM Plex Mono (datos: altitudes, precios, etiquetas).
+- **Tokens de JS** en `lib/motion.ts` (`EASE`, `DURATION`, `STAGGER`, breakpoints). Duplican los de CSS: cambiar ambos.
+- **Primitivas** (`components/motion/`, únicas con `"use client"` además de las piezas interactivas): `Reveal`, `Stagger`/`StaggerItem`, `SplitText`, `WordRotator`, `CountUp`, `ParallaxImage`, `MaskReveal`, `MagneticButton` (se inclina siempre hacia el cursor, máx. 6 px), `SmoothScroll` (Lenis). Usar siempre `m.*` (LazyMotion estricto), nunca `motion.*`.
+- **Menos movimiento**: `useReducedMotion()` (`components/motion/useReducedMotion.ts`) es la única fuente; las primitivas renderizan el estado final. Antes de hidratar, el CSS muestra todo lo marcado con `data-reveal`. Sin parallax, Ken Burns, autoplay de carruseles, pin ni Lenis.
+- **Imágenes**: siempre `components/SanityImage.tsx` (next/image + hotspot + LQIP de Sanity). Regla de hover: en tarjetas y galería la imagen reposa a `scale(1.05)` y pasa a 1 en hover → prop `zoom` en la imagen + clase `zoom-trigger` en el contenedor que recibe el hover (con `overflow-hidden`). Sin efecto en táctil.
+- **Rendimiento**: animar solo `transform` y `opacity` (excepción: el humo de `SmokeBurst`, un canvas 2D que solo dibuja ~2 s por cambio). GSAP (solo pin horizontal de tours, ≥1024px) y Lenis se importan dinámicamente. La primera foto del hero va con `priority`; el resto del slideshow se monta en idle.
+- **Overlays** (menú móvil, lightbox): portal a `body`, `useFocusTrap` y `lockScroll` (`components/motion/lenis.ts`).
 
 ## Modelo de datos (Sanity)
 Documentos:
 - `tour` (ver abajo) y `tourCategory` (tipos de tour, editables por el cliente).
-- `siteSettings` (singleton): contacto y WhatsApp, `exchangeRate?` (USD → Bs, manual), textos de la home (Nosotros con una foto `about.image`), sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
+- `siteSettings` (singleton): contacto, WhatsApp, Facebook e Instagram, `exchangeRate?` (USD → Bs, manual), textos de la home (Nosotros con una foto `about.image`), palabras rotativas del título (`heroRotatingWords[]`, localeString), datos curiosos de Bolivia (`funFacts[]`: `value`, `unit?`, `place`, `text`, todos loc salvo `value`), sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
 - `testimonial`: `name`, `country?`, `rating` (1–5), `text` (loc), `date?`, `sourceUrl?`, `order`.
 - `gallery` (singleton): `images[]` → `image` (hotspot), `alt?` (loc), `tour?` (referencia a `tour`).
 

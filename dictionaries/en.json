@@ -16,7 +16,11 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "language": "Language",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "languageNames": {
+      "es": "Español",
+      "en": "English"
+    }
   },
   "buttons": {
     "viewTours": "View tours",
@@ -56,7 +60,9 @@
     "languages": "Languages we speak",
     "bookingPolicy": "Booking policy",
     "facebook": "Facebook",
-    "followUs": "Follow us on Facebook"
+    "followUs": "Follow us on Facebook",
+    "instagram": "Instagram",
+    "followUsInstagram": "Follow us on Instagram"
   },
   "whatsapp": {
     "general": "Hello, I would like information about your tours.",
@@ -68,10 +74,43 @@
     "previous": "Previous photo",
     "next": "Next photo",
     "counter": "{current} of {total}",
-    "dialog": "Photo viewer"
+    "dialog": "Photo viewer",
+    "photoCount": "{count} photos",
+    "photoCountOne": "1 photo"
+  },
+  "hero": {
+    "factLabel": "Did you know?"
+  },
+  "stats": {
+    "eyebrow": "Bolivia by the numbers",
+    "title": "A country of record-breakers"
+  },
+  "tours": {
+    "carousel": "Featured tours",
+    "goTo": "Go to tour {n}",
+    "slide": "Tour {current} of {total}"
+  },
+  "testimonials": {
+    "carousel": "Testimonials",
+    "previous": "Previous testimonial",
+    "next": "Next testimonial",
+    "goTo": "Go to testimonial {n}",
+    "slide": "Testimonial {current} of {total}"
+  },
+  "cta": {
+    "title": "Ready for your next adventure?"
   },
   "footer": {
     "rights": "All rights reserved.",
     "nav": "Footer links"
+  },
+  "about": {
+    "badge": "Aventura de Altura · Cochabamba · Bolivia · ",
+    "coordinates": "17°23′ S · 66°09′ W — Cochabamba, Bolivia",
+    "reviews": "{count} Google reviews"
+  },
+  "whyUs": {
+    "carousel": "Reasons to travel with us",
+    "slide": "{current} of {total}"
   }
 }

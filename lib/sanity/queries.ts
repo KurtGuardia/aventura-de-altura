@@ -1,10 +1,12 @@
 import { defineQuery } from "next-sanity";
 
-const IMAGE = /* groq */ `asset, crop, hotspot, alt`;
+// `lqip`: miniatura borrosa en base64 que genera Sanity, para el placeholder.
+const IMAGE = /* groq */ `asset, crop, hotspot, alt, "lqip": asset->metadata.lqip`;
 
 export const SITE_SETTINGS_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
-  whatsappPrimary, whatsappSecondary, email, facebook, contactLanguages, exchangeRate,
-  heroTitle, heroSubtitle, heroCtaLabel, heroImage{${IMAGE}},
+  whatsappPrimary, whatsappSecondary, email, facebook, instagram, contactLanguages, exchangeRate,
+  heroTitle, heroRotatingWords, heroSubtitle, heroCtaLabel,
+  funFacts[]{_key, value, unit, place, text}, heroImage{${IMAGE}},
   safety{title, intro, items[]{_key, title, text}, image{${IMAGE}}},
   whyUs{title, items[]{_key, title, text}},
   about{title, text, image{${IMAGE}}},

@@ -16,7 +16,11 @@
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
     "language": "Idioma",
-    "skipToContent": "Saltar al contenido"
+    "skipToContent": "Saltar al contenido",
+    "languageNames": {
+      "es": "Español",
+      "en": "English"
+    }
   },
   "buttons": {
     "viewTours": "Ver tours",
@@ -56,7 +60,9 @@
     "languages": "Idiomas de atención",
     "bookingPolicy": "Política de reserva",
     "facebook": "Facebook",
-    "followUs": "Síguenos en Facebook"
+    "followUs": "Síguenos en Facebook",
+    "instagram": "Instagram",
+    "followUsInstagram": "Síguenos en Instagram"
   },
   "whatsapp": {
     "general": "Hola, quisiera información sobre sus tours.",
@@ -68,10 +74,43 @@
     "previous": "Foto anterior",
     "next": "Foto siguiente",
     "counter": "{current} de {total}",
-    "dialog": "Visor de fotos"
+    "dialog": "Visor de fotos",
+    "photoCount": "{count} fotos",
+    "photoCountOne": "1 foto"
+  },
+  "hero": {
+    "factLabel": "¿Sabías que?"
+  },
+  "stats": {
+    "eyebrow": "Bolivia en cifras",
+    "title": "Un país de récords"
+  },
+  "tours": {
+    "carousel": "Tours destacados",
+    "goTo": "Ir al tour {n}",
+    "slide": "Tour {current} de {total}"
+  },
+  "testimonials": {
+    "carousel": "Testimonios",
+    "previous": "Testimonio anterior",
+    "next": "Testimonio siguiente",
+    "goTo": "Ir al testimonio {n}",
+    "slide": "Testimonio {current} de {total}"
+  },
+  "cta": {
+    "title": "¿Listo para tu próxima aventura?"
   },
   "footer": {
     "rights": "Todos los derechos reservados.",
     "nav": "Enlaces del pie de página"
+  },
+  "about": {
+    "badge": "Aventura de Altura · Cochabamba · Bolivia · ",
+    "coordinates": "17°23′ S · 66°09′ O — Cochabamba, Bolivia",
+    "reviews": "{count} reseñas en Google"
+  },
+  "whyUs": {
+    "carousel": "Razones para viajar con nosotros",
+    "slide": "{current} de {total}"
   }
 }

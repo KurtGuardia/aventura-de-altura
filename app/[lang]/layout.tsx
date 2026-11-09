@@ -1,23 +1,33 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Anton, IBM_Plex_Mono, Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/layout/Footer";
 import { Header, type NavLink } from "@/components/layout/Header";
+import { MotionProvider } from "@/components/motion/MotionProvider";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { getDictionary, isLocale, locales } from "@/lib/i18n";
 import { getFeaturedTours, getGallery, getSiteSettings } from "@/lib/sanity/fetch";
 import { hasAbout, hasSafety } from "@/lib/sections";
-import { siteName, siteUrl } from "@/lib/site";
+import { t } from "@/lib/sanity/locale";
+import { siteName, siteUrl, whatsappHref } from "@/lib/site";
 import "../globals.css";
 
-// Display con carácter (serif editorial) + sans legible para el texto.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// Display condensada para títulos enormes, sans legible para el texto y mono
+// para datos (altitudes, precios, etiquetas).
+const anton = Anton({
+  variable: "--font-anton",
+  weight: "400",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT"],
 });
 
 const manrope = Manrope({
   variable: "--font-manrope",
+  subsets: ["latin"],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  weight: ["400", "500"],
   subsets: ["latin"],
 });
 
@@ -58,15 +68,36 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     { href: `${home}#contacto`, label: dict.nav.contact },
   ].filter((link): link is NavLink => !!link);
 
+  // Contacto del menú móvil.
+  const phones = [settings?.whatsappPrimary, settings?.whatsappSecondary]
+    .map((phone) => ({ phone, href: whatsappHref(phone, dict.whatsapp.general) }))
+    .filter((p): p is { phone: string; href: string } => !!p.phone && !!p.href);
+  const contact = {
+    whatsappHref: phones[0]?.href ?? null,
+    phones,
+    languages: t(settings?.contactLanguages, lang),
+  };
+
   return (
     // data-scroll-behavior: Next desactiva el scroll suave durante los cambios de ruta.
-    <html lang={lang} data-scroll-behavior="smooth" className={`${fraunces.variable} ${manrope.variable} h-full antialiased`}>
+    <html
+      lang={lang}
+      data-scroll-behavior="smooth"
+      className={`${anton.variable} ${manrope.variable} ${plexMono.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col font-sans">
-        <Header lang={lang} dict={dict} links={links} />
-        <main id="contenido" className="flex-1">
-          {children}
-        </main>
-        <Footer dict={dict} links={footerLinks} facebook={settings?.facebook} />
+        {/* Sin JavaScript, las entradas animadas se muestran directamente. */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
+        <MotionProvider>
+          <SmoothScroll />
+          <Header lang={lang} dict={dict} links={links} contact={contact} />
+          <main id="contenido" className="flex-1">
+            {children}
+          </main>
+          <Footer dict={dict} links={footerLinks} facebook={settings?.facebook} instagram={settings?.instagram} />
+        </MotionProvider>
       </body>
     </html>
   );

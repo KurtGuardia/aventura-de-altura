@@ -1,10 +1,18 @@
 "use client";
 
+import { AnimatePresence, m, type PanInfo } from "motion/react";
 import Link from "next/link";
 import { Image } from "next-sanity/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, ChevronLeft, ChevronRight, Close } from "@/components/icons";
+import { lockScroll } from "@/components/motion/lenis";
+import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { useFocusTrap } from "@/components/useFocusTrap";
+import { useIsClient } from "@/components/useIsClient";
 import type { GalleryItemView } from "@/lib/gallery";
+import { fill } from "@/lib/i18n";
+import { EASE } from "@/lib/motion";
 
 export type LightboxLabels = {
   dialog: string;
@@ -19,101 +27,139 @@ export type LightboxLabels = {
 type Props = {
   items: GalleryItemView[];
   index: number | null;
+  /** Foto desde la que se abrió: su miniatura se expande hacia el visor. */
+  origin: string | null;
   onIndexChange: (index: number | null) => void;
   labels: LightboxLabels;
 };
 
-const SWIPE_THRESHOLD = 50;
+/** Píxeles de arrastre para cambiar de foto o cerrar. */
+const SWIPE_X = 70;
+const SWIPE_DOWN = 110;
 
 /**
- * Visor a pantalla completa sobre <dialog> nativo (foco atrapado, Esc cierra
- * y el foco vuelve a la miniatura). Flechas del teclado y botones en
- * escritorio; deslizar en móvil.
+ * Visor a pantalla completa, compartido por la home y la página de galería.
+ * - Se abre con una layout animation desde la miniatura (layoutId de motion).
+ * - Deslizar a los lados cambia de foto; hacia abajo, cierra. Flechas del
+ *   teclado y botones en escritorio; Esc o la X cierran.
+ * - Foco atrapado y devuelto a la miniatura al cerrar.
+ * - Precarga la foto anterior y la siguiente.
  */
-export function Lightbox({ items, index, onIndexChange, labels }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const touchX = useRef<number | null>(null);
+export function Lightbox({ items, index, origin, onIndexChange, labels }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const isClient = useIsClient();
+  const reduced = useReducedMotion();
+  const [direction, setDirection] = useState(0);
   const open = index !== null;
   const item = open ? items[index] : null;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-
-    // Evita que la página de fondo se desplace mientras el visor está abierto.
-    document.documentElement.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.documentElement.style.overflow = "";
-    };
-  }, [open]);
-
+  const close = () => onIndexChange(null);
   const go = (delta: number) => {
-    if (index === null) return;
+    if (index === null || items.length < 2) return;
+    setDirection(delta);
     onIndexChange((index + delta + items.length) % items.length);
   };
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") go(-1);
-    if (e.key === "ArrowRight") go(1);
+  useFocusTrap(panelRef, open, close);
+
+  useEffect(() => {
+    if (!open) return;
+    lockScroll(true);
+    return () => lockScroll(false);
+  }, [open]);
+
+  // Flechas del teclado.
+  const goRef = useRef(go);
+  useEffect(() => {
+    goRef.current = go;
+  });
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goRef.current(-1);
+      if (e.key === "ArrowRight") goRef.current(1);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const onDragEnd = (_: unknown, info: PanInfo) => {
+    const { x, y } = info.offset;
+    if (y > SWIPE_DOWN && Math.abs(y) > Math.abs(x)) close();
+    else if (Math.abs(x) > SWIPE_X) go(x < 0 ? 1 : -1);
   };
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchX.current = e.touches[0]?.clientX ?? null;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const start = touchX.current;
-    const end = e.changedTouches[0]?.clientX;
-    touchX.current = null;
-    if (start == null || end == null) return;
-    const dx = end - start;
-    if (Math.abs(dx) > SWIPE_THRESHOLD) go(dx < 0 ? 1 : -1);
-  };
+  const neighbours =
+    index !== null && items.length > 1
+      ? [items[(index + 1) % items.length], items[(index - 1 + items.length) % items.length]]
+      : [];
 
-  const counter =
-    index !== null
-      ? labels.counter.replace("{current}", String(index + 1)).replace("{total}", String(items.length))
-      : "";
+  const slide = reduced ? 0 : 80;
 
-  return (
-    <dialog
-      ref={dialogRef}
-      aria-label={labels.dialog}
-      onClose={() => onIndexChange(null)}
-      onKeyDown={onKeyDown}
-      className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-black/95 p-0 text-white backdrop:bg-black/80"
-    >
-      {item && (
-        <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-4 py-3 md:px-6">
-            <p className="text-sm tabular-nums text-white/70" aria-live="polite">
-              {counter}
+  const panel = (
+    <AnimatePresence>
+      {item && index !== null && (
+        <m.div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={labels.dialog}
+          data-lenis-prevent=""
+          className="tone-dark fixed inset-0 z-50 flex flex-col bg-navy-950/97"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduced ? 0 : 0.35, ease: EASE }}
+        >
+          <div className="flex shrink-0 items-center justify-between px-gutter py-3">
+            <p className="label-mono tabular-nums text-white/70" aria-live="polite">
+              {fill(labels.counter, { current: index + 1, total: items.length })}
             </p>
             <button
               type="button"
-              onClick={() => onIndexChange(null)}
+              onClick={close}
               aria-label={labels.close}
-              autoFocus
-              className="-mr-2 flex size-11 items-center justify-center rounded-full text-white/90 hover:bg-white/10"
+              data-autofocus=""
+              className="-mr-2 flex size-11 items-center justify-center rounded-full hover:bg-white/10"
             >
               <Close className="size-6" />
             </button>
           </div>
 
-          <div
-            className="relative flex-1 touch-pan-y select-none"
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-          >
-            <Image
-              key={item.key}
-              src={item.full}
-              alt={item.alt}
-              fill
-              sizes="100vw"
-              className="object-contain"
-            />
+          {/* Escenario: la foto ocupa el máximo posible manteniendo su proporción. */}
+          <div className="relative min-h-0 flex-1 [container-type:size]">
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <m.div
+                key={item.key}
+                layoutId={item.key === origin ? `photo-${item.key}` : undefined}
+                custom={direction}
+                drag={items.length > 1 ? true : "y"}
+                dragSnapToOrigin
+                dragElastic={0.5}
+                onDragEnd={onDragEnd}
+                initial={{ opacity: 0, x: direction * slide }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -direction * slide }}
+                transition={{ duration: reduced ? 0 : 0.5, ease: EASE }}
+                className="absolute inset-0 m-auto cursor-grab touch-none overflow-hidden active:cursor-grabbing"
+                style={{
+                  aspectRatio: `${item.width} / ${item.height}`,
+                  width: `min(100cqw, calc(100cqh * ${item.width / item.height}))`,
+                  height: "auto",
+                }}
+              >
+                <Image
+                  src={item.full}
+                  alt={item.alt}
+                  fill
+                  sizes="100vw"
+                  draggable={false}
+                  placeholder={item.lqip ? "blur" : "empty"}
+                  blurDataURL={item.lqip}
+                  className="pointer-events-none select-none object-cover"
+                />
+              </m.div>
+            </AnimatePresence>
 
             {items.length > 1 && (
               <>
@@ -121,7 +167,7 @@ export function Lightbox({ items, index, onIndexChange, labels }: Props) {
                   type="button"
                   onClick={() => go(-1)}
                   aria-label={labels.previous}
-                  className="absolute left-4 top-1/2 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 md:flex"
+                  className="absolute left-4 top-1/2 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full bg-navy-950/60 ring-1 ring-white/15 backdrop-blur-sm hover:bg-navy-950 md:flex"
                 >
                   <ChevronLeft className="size-6" />
                 </button>
@@ -129,21 +175,28 @@ export function Lightbox({ items, index, onIndexChange, labels }: Props) {
                   type="button"
                   onClick={() => go(1)}
                   aria-label={labels.next}
-                  className="absolute right-4 top-1/2 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/70 md:flex"
+                  className="absolute right-4 top-1/2 hidden size-12 -translate-y-1/2 items-center justify-center rounded-full bg-navy-950/60 ring-1 ring-white/15 backdrop-blur-sm hover:bg-navy-950 md:flex"
                 >
                   <ChevronRight className="size-6" />
                 </button>
               </>
             )}
+
+            {/* Precarga de la foto siguiente y la anterior (mismo srcset que el visor). */}
+            <div aria-hidden="true" className="pointer-events-none invisible absolute size-px overflow-hidden">
+              {neighbours.map((n) => (
+                <Image key={n.key} src={n.full} alt="" fill sizes="100vw" loading="eager" />
+              ))}
+            </div>
           </div>
 
-          <div className="min-h-16 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 md:px-6">
+          <div className="min-h-16 shrink-0 px-gutter pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
             {item.tour ? (
               <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 border-t border-white/15 pt-3">
-                <p className="font-display text-lg leading-tight">{item.tour.title}</p>
+                <p className="font-display text-xl uppercase leading-tight tracking-display">{item.tour.title}</p>
                 <Link
                   href={item.tour.href}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-sand-100 px-4 py-2.5 text-sm font-semibold text-forest-900 hover:bg-white"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-ember-400 px-5 py-2.5 text-sm font-semibold text-navy-950 hover:bg-ember-300"
                 >
                   {labels.viewTour}
                   <ArrowRight className="size-4" />
@@ -153,8 +206,10 @@ export function Lightbox({ items, index, onIndexChange, labels }: Props) {
               item.alt && <p className="mx-auto max-w-3xl text-center text-sm text-white/70">{item.alt}</p>
             )}
           </div>
-        </div>
+        </m.div>
       )}
-    </dialog>
+    </AnimatePresence>
   );
+
+  return isClient ? createPortal(panel, document.body) : null;
 }

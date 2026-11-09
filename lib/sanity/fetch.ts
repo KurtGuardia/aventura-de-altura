@@ -38,6 +38,7 @@ export async function getFeaturedTours() {
   return (await sanityFetch<TourCard[] | null>(FEATURED_TOURS_QUERY, [TAGS.tour, TAGS.tourCategory])) ?? [];
 }
 
+
 export async function getTestimonials() {
   return (await sanityFetch<Testimonial[] | null>(TESTIMONIALS_QUERY, [TAGS.testimonial])) ?? [];
 }

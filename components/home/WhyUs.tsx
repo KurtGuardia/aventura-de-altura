@@ -1,9 +1,11 @@
-import { container, SectionHeading, sectionY } from "@/components/ui";
+import { container, SectionHeading } from "@/components/ui";
 import type { Dictionary, Locale } from "@/lib/i18n";
 import { t } from "@/lib/sanity/locale";
 import type { SiteSettings } from "@/lib/sanity/types";
 import { featureItems, hasWhyUs } from "@/lib/sections";
+import { WhyUsCarousel } from "./WhyUsCarousel";
 
+/** Por qué elegirnos: razones del Studio en un carrusel automático. */
 export function WhyUs({ lang, dict, settings }: { lang: Locale; dict: Dictionary; settings: SiteSettings | null }) {
   if (!hasWhyUs(settings, lang)) return null;
 
@@ -11,20 +13,12 @@ export function WhyUs({ lang, dict, settings }: { lang: Locale; dict: Dictionary
   const items = featureItems(settings?.whyUs?.items, lang);
 
   return (
-    <section id="por-que-elegirnos" className={`bg-white ${sectionY}`}>
+    <section id="por-que-elegirnos" className="overflow-hidden bg-cream py-section">
       <div className={container}>
         <SectionHeading title={title} />
-        <ol className="mt-12 grid gap-px overflow-hidden rounded-sm bg-stone-200 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item, i) => (
-            <li key={item.key} className="bg-white p-7 md:p-9">
-              <span className="font-display text-4xl text-sand-500" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-4 font-display text-xl leading-snug text-forest-950">{item.title}</h3>
-              {item.text && <p className="mt-2 leading-relaxed text-stone-600">{item.text}</p>}
-            </li>
-          ))}
-        </ol>
+        <div className="mt-14 md:mt-20">
+          <WhyUsCarousel items={items} labels={dict.whyUs} />
+        </div>
       </div>
     </section>
   );

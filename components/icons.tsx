@@ -124,3 +124,11 @@ export const Facebook = (p: IconProps) => (
     <path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.87.24-1.46 1.49-1.46h1.59V4.47A21 21 0 0 0 14.27 4.3c-2.3 0-3.87 1.4-3.87 3.98v2.22H7.8v3h2.6V21z" />
   </svg>
 );
+
+export const Instagram = (p: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true" {...p}>
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4.2" />
+    <circle cx="17.3" cy="6.7" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);

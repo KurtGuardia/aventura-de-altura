@@ -228,3 +228,64 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - El footer deja de repetir los datos de contacto: muestra el nombre, "Cochabamba, Bolivia", enlaces a Tours, Galería y Contacto, el ícono de Facebook y el copyright. Los datos de contacto viven solo en la sección Contacto.
 - **Motivo:** un único campo de foto es más claro para el cliente y encaja con el diseño a dos columnas. Repetir WhatsApp, idiomas y Facebook en el footer, justo debajo de Contacto, duplicaba la información.
 - **Alternativas descartadas:** mantener las fotos del equipo en una cuadrícula; un footer con todos los datos de contacto.
+
+## 2026-11-09 · Refactor visual: "revista de expedición" con movimiento
+
+- **Decisión:**
+  - **Librerías nuevas:** `motion` (entradas, hovers, layout animation del lightbox; con `LazyMotion` estricto y funciones cargadas en diferido), `lenis` (scroll suave), `gsap` + `ScrollTrigger` (solo el scroll horizontal fijo de tours en escritorio) y `embla-carousel` (+ `autoplay` y `fade`) para los carruseles de tours en móvil y testimonios. GSAP y Lenis se importan de forma dinámica en el cliente.
+  - **Tipografía:** Anton (display condensada) + Manrope (texto) + IBM Plex Mono (datos). Reemplaza a Fraunces.
+  - **Tokens** en `app/globals.css` y `lib/motion.ts`; primitivas de movimiento en `components/motion/` con un único `useReducedMotion`.
+  - **Header:** transparente sobre las cabeceras oscuras (home y galería, decidido por ruta en `HeaderShell`), sólido con blur al hacer scroll y oculto al bajar. En el resto de páginas es sólido y reserva su altura. Reemplaza la decisión "header sólido sin transparencias" del 2026-11-06.
+  - **Home:** nuevas secciones Cifras, Cinta de destinos y CTA final. Las cifras solo usan datos de Sanity: altitud máxima (`quickFacts.altitude`), `googleRating`, `googleReviewCount` y nº de idiomas distintos en `quickFacts.languages` de los tours. Sin dato, la cifra no aparece.
+  - **Datos:** sin cambios de esquema. Se añadió `lqip` a la proyección de imágenes y la consulta `TOUR_FACTS_QUERY` (todos los tours publicados: título, altitud, idiomas).
+  - **Palabra rotativa del hero:** solo rota si la última palabra del título de Sanity está en `dictionaries/*.json` (`hero.rotatingWords`). Si el cliente cambia el título, se muestra tal cual, sin frases sin sentido.
+  - **CTA final:** usa `heroImage` (no hay campo propio) y el título del diccionario.
+  - **Lightbox:** deja `<dialog>` nativo por un overlay en portal con foco atrapado a mano, para poder animar la apertura desde la miniatura (layoutId) y el cierre.
+  - **Testimonios:** carrusel embla en fade con autoplay en lugar del `scroll-snap` sin JS; con un solo testimonio se muestra estático.
+  - **View Transitions:** la foto de cada `TourCard` usa `<ViewTransition name="tour-image-<slug>">` de React 19.3. El lado del detalle queda pendiente (ver CLAUDE.md).
+- **Motivo:** el sitio era correcto pero plano; el posicionamiento premium pide fotos grandes, tipografía con carácter y movimiento que lleve la mirada a los tours y a WhatsApp, sin perder rendimiento (Lighthouse móvil en `/es`: Performance 91, Accesibilidad 100, CLS 0).
+- **Alternativas descartadas:**
+  - Mantener "sin librerías de carrusel/animación" (decisión del 2026-11-06): no permite el pin horizontal, el lightbox con layout animation ni el carrusel en fade sin reimplementarlos a mano.
+  - GSAP para todo: más peso y una segunda API; se limita al pin horizontal.
+  - `clip-path` para `MaskReveal`: no es transform/opacity; se usa una cortina que se recoge con `scaleY`.
+  - Un campo de imagen nuevo para el CTA final: cambiaría el esquema, fuera del alcance del refactor.
+
+
+## 2026-11-09 · Ajustes tras la revisión del refactor
+
+- **Decisión:**
+  - **Palabras rotativas del hero en el Studio:** nuevo campo `siteSettings.heroRotatingWords` (lista de `localeString`). La última palabra del título se alterna con ellas; vacío = título fijo. Sustituye a `hero.rotatingWords` del diccionario y a la regla "solo rota si la palabra está en el diccionario".
+  - **Datos curiosos de Bolivia:** nuevo campo `siteSettings.funFacts` (grupo "Datos curiosos"). Se alternan en la portada (reemplazan a "Punto más alto") y forman la sección "Bolivia en cifras", que absorbe las cifras propias ("Y con nosotros").
+  - **Fuera la cinta de destinos** (y la primitiva `Marquee`): el desplazamiento horizontal continuo no encajaba con el resto.
+  - **Header:** en home y galería no se oculta mientras se está en la cabecera a pantalla completa; solo después.
+  - **Por qué elegirnos:** carrusel embla con autoplay, sin botones (arrastrable, pausa con ratón/foco, sin autoplay con menos movimiento). Se añadieron 5 razones (why4–why8) con un patch aditivo (`insert` tras el último ítem), sin tocar las existentes.
+  - **MagneticButton:** reacciona al cursor cercano desde fuera (radio 110 px, tope 6 px), no solo con el cursor dentro.
+  - **Cambio de idioma:** ya era navegación cliente; ahora usa `scroll={false}` para quedarse en el mismo punto.
+  - **Logo:** `public/logo.jpg` genera `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png` y `public/logo-mark.png` (recorte circular). Va en header y footer junto al nombre, y en el sello de Nosotros.
+  - **Contenido cargado** con patch `setIfMissing` (no se re-ejecutaron seeds): 3 palabras rotativas y 6 datos curiosos (Uyuni 10.582 km², Titicaca 3.812 msnm, Sajama 6.542 msnm, Cristo de la Concordia 34,2 m, Cal Orck'o 5.000 huellas, 37 idiomas oficiales). Conviene que el cliente los revise.
+- **Motivo:** feedback del cliente/desarrollador tras ver el refactor.
+- **Alternativas descartadas:** datos curiosos en el diccionario (no editables por el cliente); header siempre visible (se mantiene el ocultar al bajar fuera del hero); mover `<html>` a un layout raíz común para evitar recargas (no hacía falta: el cambio de idioma no recarga).
+
+## 2026-11-09 · Segunda ronda de ajustes de la home
+
+- **Decisión:**
+  - **MagneticButton:** se inclina siempre hacia el cursor, esté donde esté (curva que se satura en 6 px), no solo al acercarse.
+  - **Hero:** se quita el indicador "Desliza".
+  - **Bolivia en cifras:** se quita "Y con nosotros" (altitud máxima de los tours, nota y reseñas de Google, idiomas); la nota de Google sigue en Nosotros y Testimonios. Se eliminan `TOUR_FACTS_QUERY`, `getTourFacts`, `maxAltitude` y `languageCount`, que quedaban sin uso.
+  - **Datos curiosos en rotación:** 12 datos (6 nuevos con patch aditivo: Huayna Potosí, aeropuerto de El Alto, Mi Teleférico, Titicaca en km², Madidi, Laguna Colorada). `FactsGrid` muestra 6 y cada segundo cambia 1 o 2 celdas (permanencia mínima 3,5 s; cola en orden; no cambia la celda bajo el ratón; pausa fuera de pantalla; sin rotación con menos movimiento). Entre salida y entrada, un destello blanco con partículas (solo transform/opacity).
+  - **Barra de desplazamiento:** pulgar `navy-800` sobre pista `sand-100`.
+  - **Instagram:** nuevo campo `siteSettings.instagram` (sección Contacto e ícono en el footer). Se guardó la URL sin el parámetro de seguimiento `xtok`.
+- **Motivo:** feedback tras revisar la primera ronda.
+- **Alternativas descartadas:** cambiar las 6 celdas a la vez (demasiado ruido); intervalo fijo por celda (patrón predecible).
+
+## 2026-11-09 · Humo en lugar de chispas en "Bolivia en cifras"
+
+- **Decisión:** el destello (un degradado radial + 10 puntos animados con motion) se reemplaza por `SmokeBurst`: un canvas 2D con ~28 bocanadas que se expanden, se alejan, suben, giran y se disipan, más un brillo breve en el centro. El sprite de humo (manchas radiales superpuestas, semilla fija) se dibuja una vez por página. Cada lienzo dibuja ~2 s y después queda vacío; sin dependencias nuevas.
+- **Motivo:** las chispas se veían como un efecto genérico; el humo encaja mejor con la estética de expedición y se ve más cuidado.
+- **Alternativas descartadas:** filtros SVG `feTurbulence` animados (caros de repintar); vídeo/sprite de humo con transparencia (un asset más que mantener y con licencia); librerías de partículas como tsParticles (dependencia grande para un efecto pequeño).
+
+## 2026-11-09 · Ritmo más pausado en "Bolivia en cifras" y 16 datos
+
+- **Decisión:** un cambio cada 2,6 s (antes 1 s), normalmente de una celda (dos con un 20 % de probabilidad, antes 40 %) y permanencia mínima de 8 s por dato. Se añaden 4 datos con patch aditivo (La Paz 3.640 msnm, Illimani 6.438 msnm, Chacaltaya 5.421 msnm, Misiones de Chiquitos 6 pueblos): 16 en total.
+- **Motivo:** el humo dura ~2 s; con un cambio por segundo las bocanadas se encadenaban y el efecto se sentía apresurado.
+- **Alternativas descartadas:** acortar el humo (pierde el efecto de bocanada).
