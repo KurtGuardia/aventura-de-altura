@@ -316,3 +316,46 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - **Reseñas de Google:** se cargaron las 2 reseñas de 5 estrellas en español visibles sin sesión en Google Maps (que solo muestra 5), con el texto tal cual, nombre "Nombre I.", `sourceUrl` = `googleReviewsUrl` y sin fecha (Google solo muestra "Hace 3 años"). Las otras 3 están en francés y portugués y no se usaron (el modelo es ES/EN y no se traduce a mano). Se borró el testimonio de prueba y `googleRating` pasó de 4,9 a 5,0 (publicado y borrador). Conviene completar más testimonios desde el Studio.
 - **Motivo:** feedback de la revisión de la home.
 - **Alternativas descartadas:** traducir o resumir reseñas (dejarían de ser reales); poner reseñas en francés o portugués en `text.es`.
+
+## 2026-11-09 · Modelo de itinerario: duración con unidad, título de día y opción por defecto
+
+- **Decisión:**
+  - `options[].durationDays` se reemplaza por `duration` { `value`, `unit`: `horas` | `dias` }. Migración con patch puntual (`scripts/migrate-duration.ts`, idempotente, modo prueba y `ifRevisionId`): `unit = 'dias'` en los 5 registros existentes y se elimina `durationDays`. No se re-ejecutaron los seeds (`scripts/seed.ts` se actualizó solo para que el tipo coincida).
+  - La **primera opción** del array es la que se muestra sin `?opcion=`. En Toro Toro se movió "2 días / 1 noche" al primer lugar (orden: 2 días, 1 día, 3 días).
+  - `itinerary[].title` opcional (loc): "Día 1 · {title}" o solo "Día 1". Un tour con un solo día no muestra encabezado: la línea de tiempo va directa, con un punto por actividad.
+  - `items[].time` pasa a texto libre (se quitó la validación HH:MM): "08:00", "~12:30" o "Por la tarde".
+  - Textos: "4 horas", "1 día", "1–3 días" o "4 horas – 2 días" si se mezclan unidades; plurales en `dict.labels.units` (ES/EN). El slug de la URL sigue la duración (`4-horas`, `1-dia`, `2-dias`).
+  - El botón "Duplicate" del menú de cada opción está activo (Sanity lo muestra salvo que se desactive con `disableActions`); la descripción del campo lo menciona para crear la opción de 3 días a partir de la de 2.
+- **Motivo:** algunos tours se miden en horas; los títulos de día dan contexto a los itinerarios largos; el cliente decide qué opción ve primero el visitante solo con arrastrar.
+- **Alternativas descartadas:** mantener `durationDays` y añadir `durationHours` (dos campos excluyentes, más confuso en el Studio); un campo `default` booleano por opción (puede haber varios o ninguno marcados; el orden del array ya lo resuelve); validar la hora con un patrón más permisivo (el cliente escribe horas aproximadas y franjas).
+
+## 2026-11-09 · Títulos accesibles con `aria-label` y CountUp exacto
+
+- **Decisión:** `SplitText` pone el texto en el `aria-label` del heading (en un `<p>`, un `sr-only`) y mantiene las palabras animadas con `aria-hidden`. El número decorativo de cada día del itinerario ("01") pasa a `aria-hidden`. Verificado con el árbol de accesibilidad de Chrome (home, galería y dos tours, a 1280 y 390 px): cada heading tiene un nombre único y limpio. `CountUp` fija el valor final con `onComplete`, en la limpieza del efecto, con un temporizador de respaldo (si `requestAnimationFrame` se pausa) y con "menos movimiento" aunque cambie tras hidratar.
+- **Motivo:** la revisión detectó headings con el texto duplicado ("Lo mejor del tourLo mejor del tour") en herramientas que no descartan el contenido `aria-hidden` dentro del nombre; con `aria-label` el nombre no depende de eso. El contador se quedaba a veces en un valor intermedio (5.022 en lugar de 5.030).
+- **Alternativas descartadas:** un solo texto real sin copia (las palabras partidas en `<span>` se leen palabra por palabra en algunos lectores); `role="text"` (no estándar).
+
+## 2026-11-09 · Revalidación on-demand por tags
+
+- **Decisión:** `app/api/revalidate/route.ts` valida la firma con `parseBody` de `next-sanity/webhook` y `SANITY_REVALIDATE_SECRET` (sin secreto en el servidor, responde 500 y no revalida), y llama a `revalidateTag(tag, { expire: 0 })` según `_type`: `tour` → `tour` + `tour:<slug>`; `tourCategory`, `siteSettings`, `testimonial`, `gallery` → su tag. La proyección del webhook es `{_type, "slug": slug.current}`. Pasos en `docs/05-despliegue.md`.
+- **Motivo:** los tags ya existían en cada consulta (`lib/sanity/fetch.ts`), así que se invalida exactamente lo que cambió (home, galería, tours, sitemap) sin listar rutas. `expire: 0` hace que la siguiente visita espere al contenido nuevo: el cliente publica, recarga y ya ve el cambio.
+- **Alternativas descartadas:** `revalidatePath` por ruta (hay que mantener la lista de páginas que usa cada tipo); perfil `"max"` (la primera visita tras publicar todavía vería la versión anterior y el cliente pensaría que no funcionó); un build hook de Netlify (redespliegue completo por cada cambio).
+
+## 2026-11-09 · SEO técnico, 404 propia y analytics
+
+- **Decisión:**
+  - `app/sitemap.ts` (home, galería si tiene fotos y todos los tours, × ES/EN, con `alternates` hreflang y `lastmod` desde `_updatedAt`) y `app/robots.ts` (todo salvo `/studio` y `/api/`). `metadataBase` desde `NEXT_PUBLIC_SITE_URL` (ya existía en `lib/site.ts`).
+  - Open Graph por defecto estático (`public/og-default.jpg`, logo + "Aventura de Altura" en Anton sobre azul noche) cuando la página no tiene foto. Los íconos ya salían del logo.
+  - JSON-LD `TravelAgency` en la home con teléfonos, correo, redes, Cochabamba/BO e idiomas ES/EN. Sin `aggregateRating`: Google no admite valoraciones propias en `Organization`/`LocalBusiness`.
+  - 404 propia en ES/EN dentro del layout (`app/[lang]/not-found.tsx` + catch-all `app/[lang]/[...rest]`) y error boundary (`app/[lang]/error.tsx` + `app/global-error.tsx`), con enlaces a inicio y a tours. Con un idioma no válido el layout se pinta en `es` y es la página la que llama a `notFound()`.
+  - GA4 con `@next/third-parties` solo si existe `NEXT_PUBLIC_GA_ID`. Evento `whatsapp_click` con `origin` y `tour_slug` mediante atributos `data-wa-*` y un único listener delegado (`WhatsAppTracker`).
+  - Cabeceras de seguridad en `next.config.ts`: `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `frame-ancestors 'self'` + `X-Frame-Options: SAMEORIGIN`. Sin CSP de scripts.
+  - Netlify sin `netlify.toml`: el runtime de Next 16 se configura solo.
+- **Motivo:** cierre técnico antes de publicar: indexación correcta por idioma, previsualizaciones al compartir y medición de la conversión principal (clics a WhatsApp por origen).
+- **Alternativas descartadas:**
+  - `opengraph-image.*` por archivo: tiene prioridad sobre `generateMetadata` y pisaría la portada de cada tour.
+  - `global-not-found` (experimental): con `[lang]` y el catch-all no quedan rutas sin coincidencia, así que nunca se usaría. `dynamicParams = false` no está disponible con Cache Components.
+  - Convertir cada CTA en componente de cliente con `onClick` para GA: más JavaScript y más archivos tocados que un listener delegado.
+  - CSP completa: exige mantener la lista de orígenes de Sanity, GA y el Studio; riesgo de romper el Studio para un sitio sin formularios ni datos de usuario.
+  - Origen "tarjeta": las tarjetas de tour no tienen botón de WhatsApp (enlazan al detalle), así que no hay clic que medir.
+- **Limitación conocida:** la primera visita a un slug de tour inexistente responde 200 (con la UI de 404 y `noindex`) y las siguientes, 404; es cómo Next sirve con PPR los parámetros no generados en el build.

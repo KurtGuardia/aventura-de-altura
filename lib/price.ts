@@ -1,5 +1,5 @@
 import type { Dictionary, Locale } from "@/lib/i18n";
-import type { TourOptionSummary } from "@/lib/sanity/types";
+import type { DurationUnit, TourDuration, TourOptionSummary } from "@/lib/sanity/types";
 
 const numberLocale: Record<Locale, string> = { es: "es-BO", en: "en-US" };
 
@@ -47,17 +47,56 @@ export function fromPriceLabel(
   return { usd, bs };
 }
 
-/** "1 día", "3 días" o "1–3 días" según las opciones del tour. */
+/** Duración válida (cantidad > 0 y unidad conocida) o `null`. */
+function validDuration(d: TourDuration | null | undefined): { value: number; unit: DurationUnit } | null {
+  return d && typeof d.value === "number" && d.value > 0 && (d.unit === "horas" || d.unit === "dias")
+    ? { value: d.value, unit: d.unit }
+    : null;
+}
+
+/** Unidad en singular o plural ("1 día", "1,5 horas", "3 días"). */
+function unitLabel(unit: DurationUnit, value: number, dict: Dictionary) {
+  const forms = dict.labels.units[unit];
+  return value === 1 ? forms.one : forms.other;
+}
+
+/** "4 horas", "1 día"… con el formato numérico del idioma (hasta 1 decimal). */
+export function formatDuration(d: TourDuration | null | undefined, lang: Locale, dict: Dictionary): string | undefined {
+  const valid = validDuration(d);
+  if (!valid) return undefined;
+  return `${formatDurationValue(valid.value, lang)} ${unitLabel(valid.unit, valid.value, dict)}`;
+}
+
+function formatDurationValue(value: number, lang: Locale) {
+  return formatNumber(value, lang, Number.isInteger(value) ? 0 : 1);
+}
+
+/**
+ * Duración del tour según sus opciones: "4 horas", "1 día", "1–3 días" (misma
+ * unidad, plural según el máximo) o "4 horas – 2 días" (unidades distintas).
+ */
 export function durationLabel(
   options: TourOptionSummary[] | null | undefined,
+  lang: Locale,
   dict: Dictionary,
 ): string | undefined {
-  const days = (options ?? [])
-    .map((o) => o.durationDays)
-    .filter((d): d is number => typeof d === "number" && d > 0);
-  if (!days.length) return undefined;
-  const min = Math.min(...days);
-  const max = Math.max(...days);
-  const unit = max === 1 ? dict.labels.day : dict.labels.days;
-  return min === max ? `${min} ${unit}` : `${min}–${max} ${unit}`;
+  const durations = (options ?? [])
+    .map((o) => validDuration(o.duration))
+    .filter((d): d is { value: number; unit: DurationUnit } => !!d)
+    // Para ordenar, todo en horas (un día = 24 h).
+    .sort((a, b) => toHours(a) - toHours(b));
+  if (!durations.length) return undefined;
+  const min = durations[0];
+  const max = durations[durations.length - 1];
+  if (min.unit === max.unit) {
+    const unit = unitLabel(max.unit, max.value, dict);
+    return min.value === max.value
+      ? `${formatDurationValue(min.value, lang)} ${unit}`
+      : `${formatDurationValue(min.value, lang)}–${formatDurationValue(max.value, lang)} ${unit}`;
+  }
+  return `${formatDuration(min, lang, dict)} – ${formatDuration(max, lang, dict)}`;
+}
+
+function toHours(d: { value: number; unit: DurationUnit }) {
+  return d.unit === "horas" ? d.value : d.value * 24;
 }

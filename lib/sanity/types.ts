@@ -63,7 +63,12 @@ export type SiteSettings = {
 /** Precios por persona en USD según el tamaño del grupo. */
 export type TourPrices = Partial<Record<"p1" | "p2" | "p3" | "p4" | "p5plus", number | null>>;
 
-export type TourOptionSummary = { durationDays?: number | null; prices?: TourPrices | null };
+export type DurationUnit = "horas" | "dias";
+
+/** Duración de una opción: cantidad + unidad (horas o días). */
+export type TourDuration = { value?: number | null; unit?: DurationUnit | null };
+
+export type TourOptionSummary = { duration?: TourDuration | null; prices?: TourPrices | null };
 
 export type TourCard = {
   _id: string;
@@ -78,7 +83,12 @@ export type TourCard = {
 export type Difficulty = "baja" | "media" | "alta";
 
 export type ItineraryItem = { _key: string; time?: string | null; text?: LocaleValue | null };
-export type ItineraryDay = { _key: string; day?: number | null; items?: ItineraryItem[] | null };
+export type ItineraryDay = {
+  _key: string;
+  day?: number | null;
+  title?: LocaleValue | null;
+  items?: ItineraryItem[] | null;
+};
 
 export type TourOption = TourOptionSummary & {
   _key: string;
@@ -114,6 +124,12 @@ export type TourDetail = Omit<TourCard, "options"> & {
   requirements?: LocaleListItem[] | null;
   notes?: LocaleValue | null;
   gallery?: (SanityImage & { _key: string })[] | null;
+};
+
+export type SitemapData = {
+  tours: { slug: string; _updatedAt: string }[] | null;
+  home: string | null;
+  gallery: { _updatedAt: string; count: number } | null;
 };
 
 export type TourPageData = { tour: TourDetail | null; others: TourCard[] | null };

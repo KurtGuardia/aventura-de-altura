@@ -8,6 +8,7 @@ import { button, container } from "@/components/ui";
 import type { Dictionary, Locale } from "@/lib/i18n";
 import type { SanityImage as SanityImageType } from "@/lib/sanity/types";
 import type { ReactNode } from "react";
+import { waTracking } from "@/lib/analytics";
 
 /**
  * CTA final a pantalla completa: foto en parallax, título gigante (del
@@ -58,7 +59,7 @@ export function FinalCta({
           {actions}
           {!actions && whatsapp && (
             <MagneticButton>
-              <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={`${button.base} ${button.large} ${button.accent}`}>
+              <a href={whatsapp} target="_blank" rel="noopener noreferrer" {...waTracking("cta-final")} className={`${button.base} ${button.large} ${button.accent}`}>
                 <WhatsApp className="size-5" />
                 {dict.buttons.contactWhatsApp}
               </a>

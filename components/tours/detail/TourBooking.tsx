@@ -4,6 +4,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { setSearchParam, useLocationSearch } from "@/components/useLocationSearch";
 import { whatsappHref } from "@/lib/site";
 import { tourWhatsAppMessage, type WhatsAppTemplates } from "@/lib/tour-detail";
+import { waTracking, type WhatsAppOrigin } from "@/lib/analytics";
 
 /** Parámetro de la URL con la opción elegida (`?opcion=2-dias`). */
 export const OPTION_PARAM = "opcion";
@@ -11,6 +12,8 @@ export const OPTION_PARAM = "opcion";
 type BookingOption = { slug: string; label: string };
 
 type Booking = {
+  /** Slug del tour (evento de analytics). */
+  tourSlug: string;
   options: BookingOption[];
   /** Índice de la opción elegida (0 si la URL no indica otra). */
   selected: number;
@@ -32,12 +35,14 @@ const BookingContext = createContext<Booking | null>(null);
  * siempre el mismo mensaje.
  */
 export function TourBookingProvider({
+  tourSlug,
   tourTitle,
   phone,
   templates,
   options,
   children,
 }: {
+  tourSlug: string;
   tourTitle: string;
   phone: string | null | undefined;
   templates: WhatsAppTemplates;
@@ -65,7 +70,7 @@ export function TourBookingProvider({
 
   return (
     <BookingContext.Provider
-      value={{ options, selected, select, people, setPeople, whatsapp: whatsappHref(phone, message) }}
+      value={{ tourSlug, options, selected, select, people, setPeople, whatsapp: whatsappHref(phone, message) }}
     >
       {children}
     </BookingContext.Provider>
@@ -83,18 +88,28 @@ export function useTourBooking(): Booking {
  * tiene número de WhatsApp.
  */
 export function BookingWhatsAppLink({
+  origin,
   className,
   children,
   ariaLabel,
 }: {
+  /** Origen del clic para el evento `whatsapp_click`. */
+  origin: WhatsAppOrigin;
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
 }) {
-  const { whatsapp } = useTourBooking();
+  const { whatsapp, tourSlug } = useTourBooking();
   if (!whatsapp) return null;
   return (
-    <a href={whatsapp} target="_blank" rel="noopener noreferrer" aria-label={ariaLabel} className={className}>
+    <a
+      href={whatsapp}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={ariaLabel}
+      className={className}
+      {...waTracking(origin, tourSlug)}
+    >
       {children}
     </a>
   );

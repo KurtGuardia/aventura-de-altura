@@ -1,5 +1,5 @@
 import { fill, type Dictionary, type Locale } from "@/lib/i18n";
-import { durationLabel, formatNumber, fromPriceLabel, minFromPrice } from "@/lib/price";
+import { durationLabel, formatDuration, formatNumber, fromPriceLabel, minFromPrice } from "@/lib/price";
 import { t } from "@/lib/sanity/locale";
 import type { LocaleListItem, SanityImage, TourDetail, TourOption, TourPrices } from "@/lib/sanity/types";
 
@@ -31,7 +31,13 @@ export type OptionView = {
   slug: string;
   label: string;
   lodging?: string;
-  days: { key: string; day: number; items: { key: string; time?: string; text: string }[] }[];
+  days: {
+    key: string;
+    day: number;
+    /** Título opcional del día ("Cochabamba → Toro Toro"). */
+    title?: string;
+    items: { key: string; time?: string; text: string }[];
+  }[];
   /** Solo los tramos con precio, en orden. */
   prices: PriceRow[];
 };
@@ -63,13 +69,19 @@ export type TourDetailView = {
   minPrice: number | null;
 };
 
-/** Nombre de la opción en la URL: "1-dia", "2-dias"… o "opcion-N" si se repite o no hay duración. */
+/** Unidades de la duración en la URL (sin tildes, iguales en ES y EN). */
+const SLUG_UNITS = { horas: ["hora", "horas"], dias: ["dia", "dias"] } as const;
+
+/**
+ * Nombre de la opción en la URL: "4-horas", "1-dia", "2-dias"… o "opcion-N"
+ * si se repite o no tiene duración.
+ */
 function optionSlugs(options: TourOption[]): string[] {
-  const bases = options.map((o) =>
-    typeof o.durationDays === "number" && o.durationDays > 0
-      ? `${o.durationDays}-${o.durationDays === 1 ? "dia" : "dias"}`
-      : null,
-  );
+  const bases = options.map(({ duration: d }) => {
+    if (!d || typeof d.value !== "number" || d.value <= 0 || !d.unit || !(d.unit in SLUG_UNITS)) return null;
+    const [one, other] = SLUG_UNITS[d.unit];
+    return `${String(d.value).replace(".", "-")}-${d.value === 1 ? one : other}`;
+  });
   return bases.map((base, i) =>
     base && bases.filter((b) => b === base).length === 1 ? base : `opcion-${i + 1}`,
   );
@@ -101,12 +113,13 @@ export function toTourDetailView(
     key: option._key,
     slug: slugs[i],
     // Sin nombre, la duración ("2 días") identifica la opción.
-    label: t(option.label, lang) ?? durationLabel([option], dict) ?? fill(dict.tour.optionN, { n: i + 1 }),
+    label: t(option.label, lang) ?? formatDuration(option.duration, lang, dict) ?? fill(dict.tour.optionN, { n: i + 1 }),
     lodging: option.lodging?.trim() || undefined,
     days: (option.itinerary ?? [])
       .map((day, d) => ({
         key: day._key,
         day: day.day ?? d + 1,
+        title: t(day.title, lang)?.trim() || undefined,
         items: (day.items ?? []).flatMap((item) => {
           const text = t(item.text, lang);
           return text ? [{ key: item._key, time: item.time?.trim() || undefined, text }] : [];
@@ -131,7 +144,7 @@ export function toTourDetailView(
     categories: (tour.categories ?? []).map((c) => t(c, lang)).filter((c): c is string => !!c),
     cover: tour.coverImage?.asset ? tour.coverImage : null,
     facts: {
-      duration: durationLabel(rawOptions, dict),
+      duration: durationLabel(rawOptions, lang, dict),
       difficulty: facts?.difficulty ? dict.tour.difficultyLevels[facts.difficulty] : undefined,
       altitude: typeof facts?.altitude === "number" && facts.altitude > 0 ? facts.altitude : undefined,
       departure: facts?.departureCity?.trim() || undefined,

@@ -80,7 +80,7 @@ export function TourStickyCard({
           )}
         </dl>
       )}
-      <BookingWhatsAppLink className={`${button.base} ${button.accent} mt-6 w-full`}>
+      <BookingWhatsAppLink origin="detalle-sidebar" className={`${button.base} ${button.accent} mt-6 w-full`}>
         <WhatsApp className="size-5" />
         {labels.checkAvailability}
       </BookingWhatsAppLink>
@@ -147,7 +147,7 @@ export function TourMobileBar({
               ) : (
                 <span />
               )}
-              <BookingWhatsAppLink className={`${button.base} ${button.accent} shrink-0 gap-2 px-4 text-[0.8125rem]`}>
+              <BookingWhatsAppLink origin="detalle-barra-movil" className={`${button.base} ${button.accent} shrink-0 gap-2 px-4 text-[0.8125rem]`}>
                 <WhatsApp className="size-5" />
                 {labels.checkAvailability}
               </BookingWhatsAppLink>

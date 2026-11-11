@@ -5,11 +5,12 @@ import {
   FEATURED_TOURS_QUERY,
   GALLERY_QUERY,
   SITE_SETTINGS_QUERY,
+  SITEMAP_QUERY,
   TESTIMONIALS_QUERY,
   TOUR_PAGE_QUERY,
   TOUR_SLUGS_QUERY,
 } from "./queries";
-import type { GalleryImage, SiteSettings, Testimonial, TourCard, TourPageData } from "./types";
+import type { GalleryImage, SitemapData, SiteSettings, Testimonial, TourCard, TourPageData } from "./types";
 
 // Sin CDN: tras una revalidación on-demand se quiere el contenido recién
 // publicado, no una copia en caché del CDN de Sanity.
@@ -64,6 +65,10 @@ export async function getTourPage(slug: string) {
     { slug },
   );
   return { tour: data?.tour ?? null, others: data?.others ?? [] };
+}
+
+export function getSitemapData() {
+  return sanityFetch<SitemapData | null>(SITEMAP_QUERY, [TAGS.tour, TAGS.siteSettings, TAGS.gallery]);
 }
 
 export async function getTestimonials() {

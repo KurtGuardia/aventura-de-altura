@@ -8,6 +8,7 @@ import type { Dictionary, Locale } from "@/lib/i18n";
 import { paragraphs, t } from "@/lib/sanity/locale";
 import type { SiteSettings } from "@/lib/sanity/types";
 import { whatsappHref } from "@/lib/site";
+import { waTracking } from "@/lib/analytics";
 
 /** Contacto: WhatsApp destacado y datos con jerarquía clara. Correo y política solo si existen. */
 export function Contact({ lang, dict, settings }: { lang: Locale; dict: Dictionary; settings: SiteSettings | null }) {
@@ -32,6 +33,7 @@ export function Contact({ lang, dict, settings }: { lang: Locale; dict: Dictiona
               <MagneticButton>
                 <a
                   href={phones[0].href}
+                  {...waTracking("contacto")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`${button.base} ${button.large} ${button.whatsapp}`}
@@ -50,7 +52,7 @@ export function Contact({ lang, dict, settings }: { lang: Locale; dict: Dictiona
               <ul className="space-y-1 font-mono text-xl">
                 {phones.map((p) => (
                   <li key={p.phone}>
-                    <a href={p.href} target="_blank" rel="noopener noreferrer" className="hover:text-ember-300">
+                    <a href={p.href} target="_blank" rel="noopener noreferrer" {...waTracking("contacto")} className="hover:text-ember-300">
                       {p.phone}
                     </a>
                   </li>

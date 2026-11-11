@@ -7,6 +7,9 @@ import { siteName, siteUrl } from "@/lib/site";
 
 const ogLocale: Record<Locale, string> = { es: "es_BO", en: "en_US" };
 
+/** Open Graph por defecto (logo sobre azul noche) para páginas sin foto propia. */
+export const DEFAULT_OG_IMAGE = { url: "/og-default.jpg", width: 1200, height: 630, alt: siteName } as const;
+
 /**
  * Metadata común: canonical, hreflang (es, en, x-default → es) y Open Graph.
  * `path` es la ruta sin el idioma, por ejemplo "" (home) o "/galeria".
@@ -34,7 +37,7 @@ export function pageMetadata({
         height: 630,
         alt: t(image.alt, lang) ?? siteName,
       }
-    : undefined;
+    : DEFAULT_OG_IMAGE;
 
   return {
     title: absoluteTitle ? { absolute: title } : title,
@@ -54,13 +57,13 @@ export function pageMetadata({
       url: `/${lang}${path}`,
       locale: ogLocale[lang],
       alternateLocale: locales.filter((l) => l !== lang).map((l) => ogLocale[l]),
-      images: ogImage ? [ogImage] : undefined,
+      images: [ogImage],
     },
     twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: ogImage ? [ogImage.url] : undefined,
+      images: [ogImage.url],
     },
   };
 }
@@ -111,6 +114,54 @@ export function tourJsonLd({
       url: siteUrl,
       ...(telephone && { telephone }),
     },
+  };
+}
+
+/**
+ * JSON-LD de la organización (`TravelAgency`) para la home, con los datos de
+ * contacto de "Ajustes del sitio". Solo emite lo que existe.
+ */
+export function organizationJsonLd({
+  lang,
+  description,
+  phones,
+  email,
+  sameAs,
+}: {
+  lang: Locale;
+  description?: string;
+  phones: string[];
+  email?: string | null;
+  sameAs: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "@id": `${siteUrl}/#organization`,
+    name: siteName,
+    url: `${siteUrl}/${lang}`,
+    logo: `${siteUrl}/logo.jpg`,
+    image: `${siteUrl}${DEFAULT_OG_IMAGE.url}`,
+    ...(description && { description }),
+    ...(phones[0] && { telephone: phones[0] }),
+    ...(email && { email }),
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Cochabamba",
+      addressCountry: "BO",
+    },
+    areaServed: { "@type": "Country", name: "Bolivia" },
+    // Idiomas de atención: solo español e inglés.
+    availableLanguage: ["es", "en"],
+    ...(phones.length > 0 && {
+      contactPoint: phones.map((telephone) => ({
+        "@type": "ContactPoint",
+        telephone,
+        contactType: "customer service",
+        availableLanguage: ["Spanish", "English"],
+      })),
+    }),
+    ...(sameAs.length > 0 && { sameAs }),
   };
 }
 

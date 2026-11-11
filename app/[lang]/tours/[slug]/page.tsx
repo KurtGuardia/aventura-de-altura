@@ -89,6 +89,7 @@ export default async function TourPage({ params }: PageProps<"/[lang]/tours/[slu
 
   return (
     <TourBookingProvider
+      tourSlug={slug}
       tourTitle={view.title}
       phone={settings?.whatsappPrimary}
       templates={dict.whatsapp}
@@ -204,7 +205,7 @@ export default async function TourPage({ params }: PageProps<"/[lang]/tours/[slu
         title={dict.tour.cta}
         actions={
           <MagneticButton>
-            <BookingWhatsAppLink className={`${button.base} ${button.large} ${button.accent}`}>
+            <BookingWhatsAppLink origin="detalle-cta-final" className={`${button.base} ${button.large} ${button.accent}`}>
               <WhatsApp className="size-5" />
               {dict.buttons.checkAvailability}
             </BookingWhatsAppLink>

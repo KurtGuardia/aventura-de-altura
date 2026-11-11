@@ -23,7 +23,7 @@ const TOUR_CARD = /* groq */ `
   tagline,
   coverImage{${IMAGE}},
   "categories": categories[]->title,
-  "options": options[]{durationDays, prices}
+  "options": options[]{duration, prices}
 `;
 
 export const FEATURED_TOURS_QUERY = defineQuery(`*[
@@ -32,6 +32,13 @@ export const FEATURED_TOURS_QUERY = defineQuery(`*[
 
 /** Slugs de todos los tours publicados (generateStaticParams del detalle). */
 export const TOUR_SLUGS_QUERY = defineQuery(`*[_type == "tour" && defined(slug.current)].slug.current`);
+
+/** Datos del sitemap: tours con su fecha de edición y si la galería tiene fotos. */
+export const SITEMAP_QUERY = defineQuery(`{
+  "tours": *[_type == "tour" && defined(slug.current)] | order(order asc){"slug": slug.current, _updatedAt},
+  "home": *[_id == "siteSettings"][0]._updatedAt,
+  "gallery": *[_id == "gallery"][0]{_updatedAt, "count": count(images[defined(asset)])}
+}`);
 
 /**
  * Página de detalle: el tour por slug con todos sus campos y hasta 3 "otros
@@ -49,8 +56,8 @@ export const TOUR_PAGE_QUERY = defineQuery(`{
     quickFacts{difficulty, altitude, departureCity, languages},
     highlights[]{_key, title, text, image{${IMAGE}}},
     options[]{
-      _key, label, durationDays, nights, lodging, prices,
-      itinerary[]{_key, day, items[]{_key, time, text}}
+      _key, label, duration, nights, lodging, prices,
+      itinerary[]{_key, day, title, items[]{_key, time, text}}
     },
     includes,
     excludes,

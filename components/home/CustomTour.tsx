@@ -9,6 +9,7 @@ import { paragraphs, t } from "@/lib/sanity/locale";
 import type { SiteSettings } from "@/lib/sanity/types";
 import { hasCustomTour } from "@/lib/sections";
 import { whatsappHref } from "@/lib/site";
+import { waTracking } from "@/lib/analytics";
 
 /** Tour personalizado: banner a pantalla completa con foto en parallax y CTA a WhatsApp. */
 export function CustomTour({ lang, dict, settings }: { lang: Locale; dict: Dictionary; settings: SiteSettings | null }) {
@@ -45,7 +46,7 @@ export function CustomTour({ lang, dict, settings }: { lang: Locale; dict: Dicti
         />
         <Reveal delay={0.25} className="mt-10">
           <MagneticButton>
-            <a href={href} target="_blank" rel="noopener noreferrer" className={`${button.base} ${button.large} ${button.accent}`}>
+            <a href={href} target="_blank" rel="noopener noreferrer" {...waTracking("tour-personalizado")} className={`${button.base} ${button.large} ${button.accent}`}>
               <WhatsApp className="size-5" />
               {label}
             </a>

@@ -121,7 +121,7 @@ export function TourItinerary({ options, labels }: { options: OptionView[]; labe
             ) : (
               <div className="rounded-card border border-dashed border-navy-950/20 bg-sand-50 p-6 md:p-8">
                 <p className="max-w-md text-lg leading-relaxed text-navy-950">{labels.noItinerary}</p>
-                <BookingWhatsAppLink className={`${button.base} ${button.primary} mt-6`}>
+                <BookingWhatsAppLink origin="detalle-itinerario" className={`${button.base} ${button.primary} mt-6`}>
                   <WhatsApp className="size-5" />
                   {labels.checkAvailability}
                 </BookingWhatsAppLink>
@@ -134,15 +134,69 @@ export function TourItinerary({ options, labels }: { options: OptionView[]; labe
   );
 }
 
-function Timeline({ option, labels }: { option: OptionView; labels: Labels }) {
-  const ref = useRef<HTMLOListElement>(null);
+/** Actividades de un día: hora (si hay) y texto. */
+function DayItems({ items, className = "" }: { items: OptionView["days"][number]["items"]; className?: string }) {
+  return (
+    <ul className={`space-y-4 ${className}`}>
+      {items.map((item) => (
+        <li key={item.key} className="relative grid gap-1 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
+          {item.time ? (
+            <span className="font-mono text-sm text-sand-700 sm:pt-0.5">{item.time}</span>
+          ) : (
+            <span aria-hidden="true" className="hidden sm:block" />
+          )}
+          <span className="leading-relaxed text-stone-700">{item.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Ruta: trazo base tenue y trazo que avanza con el scroll (solo transform). */
+function RouteLine({ progress, className }: { progress: ReturnType<typeof useScroll>["scrollYProgress"]; className: string }) {
   const reduced = useReducedMotion();
+  return (
+    <>
+      <span aria-hidden="true" className={`absolute w-px bg-navy-950/12 ${className}`} />
+      <m.span
+        aria-hidden="true"
+        className={`absolute w-px origin-top bg-ember-500 ${className}`}
+        style={{ scaleY: reduced ? 1 : progress }}
+      />
+    </>
+  );
+}
+
+function Timeline({ option, labels }: { option: OptionView; labels: Labels }) {
+  // Tour de un solo día: sin encabezado "Día 1", directamente la línea de tiempo.
+  if (option.days.length === 1) return <SingleDay day={option.days[0]} />;
+  return <MultiDayTimeline option={option} labels={labels} />;
+}
+
+function SingleDay({ day }: { day: OptionView["days"][number] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
+  return (
+    <div ref={ref} className="relative">
+      <RouteLine progress={scrollYProgress} className="bottom-2 left-1.25 top-2" />
+      {day.title && (
+        <p className="mb-5 pl-8 font-display text-display-md uppercase tracking-display text-navy-950">{day.title}</p>
+      )}
+      <DayItems
+        items={day.items}
+        className="pl-8 [&>li]:before:absolute [&>li]:before:-left-8 [&>li]:before:top-2 [&>li]:before:size-2.75 [&>li]:before:rounded-full [&>li]:before:border-2 [&>li]:before:border-ember-500 [&>li]:before:bg-cream [&>li]:before:content-['']"
+      />
+    </div>
+  );
+}
+
+function MultiDayTimeline({ option, labels }: { option: OptionView; labels: Labels }) {
+  const ref = useRef<HTMLOListElement>(null);
   const desktop = useMediaQuery(DESKTOP_QUERY);
   const baseId = useId();
   // Móvil: acordeón con el primer día abierto.
   const [open, setOpen] = useState<Set<number>>(() => new Set([0]));
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 60%"] });
-  const single = option.days.length === 1;
 
   const toggle = (i: number) =>
     setOpen((current) => {
@@ -154,22 +208,26 @@ function Timeline({ option, labels }: { option: OptionView; labels: Labels }) {
 
   return (
     <ol ref={ref} className="relative space-y-4 lg:space-y-12">
-      {/* Ruta: trazo base tenue y trazo que avanza con el scroll (solo transform). */}
-      <span aria-hidden="true" className="absolute bottom-4 left-4.75 top-4 w-px bg-navy-950/12" />
-      <m.span
-        aria-hidden="true"
-        className="absolute bottom-4 left-4.75 top-4 w-px origin-top bg-ember-500"
-        style={{ scaleY: reduced ? 1 : scrollYProgress }}
-      />
+      <RouteLine progress={scrollYProgress} className="bottom-4 left-4.75 top-4" />
 
       {option.days.map((day, i) => {
-        const title = fill(labels.day, { n: day.day });
+        // "Día 1 · Cochabamba → Toro Toro" o solo "Día 1".
+        const dayLabel = fill(labels.day, { n: day.day });
+        const title = (
+          <span className="flex-1">
+            {dayLabel}
+            {day.title && <span className="text-navy-950/55"> · {day.title}</span>}
+          </span>
+        );
         const panelId = `${baseId}-day-${i}`;
-        // En escritorio (o con un solo día) no hay acordeón: todo abierto.
-        const collapsible = !desktop && !single;
+        // En escritorio no hay acordeón: todo abierto.
+        const collapsible = !desktop;
         const expanded = !collapsible || open.has(i);
         const marker = (
-          <span className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-navy-950 font-mono text-sm text-ember-300">
+          <span
+            aria-hidden="true"
+            className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-navy-950 font-mono text-sm text-ember-300"
+          >
             {String(day.day).padStart(2, "0")}
           </span>
         );
@@ -186,9 +244,9 @@ function Timeline({ option, labels }: { option: OptionView; labels: Labels }) {
                   className="flex w-full items-center gap-5 py-1 text-left"
                 >
                   {marker}
-                  <span className="flex-1">{title}</span>
+                  {title}
                   <ChevronDown
-                    className={`size-6 text-navy-950/60 transition-transform duration-300 ease-cinematic ${expanded ? "rotate-180" : ""}`}
+                    className={`size-6 shrink-0 text-navy-950/60 transition-transform duration-300 ease-cinematic ${expanded ? "rotate-180" : ""}`}
                   />
                 </button>
               ) : (
@@ -200,18 +258,7 @@ function Timeline({ option, labels }: { option: OptionView; labels: Labels }) {
             </h3>
             {/* Cerrado solo en móvil: en escritorio el CSS lo muestra siempre (sin saltos al hidratar). */}
             <div id={panelId} className={expanded ? "block" : "hidden lg:block"}>
-              <ul className="space-y-4 pb-4 pl-15 pt-5">
-                {day.items.map((item) => (
-                  <li key={item.key} className="grid gap-1 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
-                    {item.time ? (
-                      <span className="font-mono text-sm text-sand-700 sm:pt-0.5">{item.time}</span>
-                    ) : (
-                      <span aria-hidden="true" className="hidden sm:block" />
-                    )}
-                    <span className="leading-relaxed text-stone-700">{item.text}</span>
-                  </li>
-                ))}
-              </ul>
+              <DayItems items={day.items} className="pb-4 pl-15 pt-5" />
             </div>
           </li>
         );

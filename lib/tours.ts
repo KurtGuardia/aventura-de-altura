@@ -31,7 +31,7 @@ export function toTourCardView(
     title,
     tagline: t(tour.tagline, lang),
     categories: (tour.categories ?? []).map((c) => t(c, lang)).filter((c): c is string => !!c),
-    duration: durationLabel(tour.options, dict),
+    duration: durationLabel(tour.options, lang, dict),
     price: fromPriceLabel(tour.options, lang, dict, exchangeRate),
     image: tour.coverImage,
   };

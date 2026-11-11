@@ -31,8 +31,11 @@ const SUFFIX_MASK = "inline-block overflow-hidden pt-[0.5em] -mt-[0.5em] pb-[0.5
  * Título revelado palabra por palabra.
  *
  * Accesibilidad (regla común a las primitivas que duplican texto): hay una
- * sola versión legible, el texto completo en `sr-only` (o `label`), y las
- * copias visuales animadas van con `aria-hidden`.
+ * sola versión legible y las copias visuales animadas van con `aria-hidden`.
+ * En los títulos (h1–h3) esa versión es el `aria-label` del heading: así su
+ * nombre accesible es exactamente el texto (o `label`), sin depender de que
+ * la herramienta descarte el contenido oculto. En un <p> (donde `aria-label`
+ * no está permitido) es un `sr-only`.
  */
 export function SplitText({ text, as = "h2", className, delay = 0, trigger = "view", suffix, label }: Props) {
   const reduced = useReducedMotion();
@@ -54,9 +57,12 @@ export function SplitText({ text, as = "h2", className, delay = 0, trigger = "vi
       ? { animate: "show" }
       : { whileInView: "show", viewport: { once: true, amount: 0.4 } };
 
+  const accessible = label ?? text;
+  const heading = Tag !== "p";
+
   return (
-    <Tag className={className}>
-      <span className="sr-only">{label ?? text}</span>
+    <Tag className={className} aria-label={heading ? accessible : undefined}>
+      {!heading && <span className="sr-only">{accessible}</span>}
       <m.span aria-hidden="true" variants={container} initial="hidden" {...play}>
         {words.map((w, i) => (
           <span key={i}>

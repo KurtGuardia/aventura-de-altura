@@ -23,6 +23,8 @@ type Props = {
  * Contador animado al entrar en el viewport, con el formato numérico del
  * idioma. El HTML del servidor trae el valor final (SEO, sin JavaScript y
  * "menos movimiento"); los lectores de pantalla leen siempre el valor final.
+ * Termina siempre exactamente en `value`: `onComplete` y la limpieza del
+ * efecto escriben el valor final aunque el último frame no llegue a él.
  */
 export function CountUp({ value, lang, decimals = 0, from = 0, duration = 2, className = "" }: Props) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -31,23 +33,41 @@ export function CountUp({ value, lang, decimals = 0, from = 0, duration = 2, cla
   const final = formatNumber(value, lang, decimals);
 
   // Tras hidratar, vuelve al valor inicial a la espera de entrar en pantalla.
+  // Con "menos movimiento" (también si cambia después de hidratar) fija el final.
   useEffect(() => {
-    if (reduced || !ref.current) return;
-    ref.current.textContent = formatNumber(from, lang, decimals);
-  }, [reduced, from, lang, decimals]);
+    const el = ref.current;
+    if (!el) return;
+    el.textContent = reduced ? final : formatNumber(from, lang, decimals);
+  }, [reduced, final, from, lang, decimals]);
 
   useEffect(() => {
     const el = ref.current;
     if (!inView || reduced || !el) return;
+    const showFinal = () => {
+      el.textContent = final;
+    };
     const controls = animate(from, value, {
       duration,
       ease: EASE,
       onUpdate: (v) => {
         el.textContent = formatNumber(v, lang, decimals);
       },
+      // El último frame fija el valor exacto (los intermedios pueden quedarse cortos).
+      onComplete: showFinal,
     });
-    return () => controls.stop();
-  }, [inView, reduced, from, value, duration, lang, decimals]);
+    // Respaldo: si el navegador pausa requestAnimationFrame (pestaña en segundo
+    // plano), onComplete no llega; el temporizador fija el final igualmente.
+    const fallback = window.setTimeout(() => {
+      controls.stop();
+      showFinal();
+    }, duration * 1000 + 150);
+    // Si la animación se interrumpe (desmontaje, cambio de props), nunca queda a medias.
+    return () => {
+      window.clearTimeout(fallback);
+      controls.stop();
+      showFinal();
+    };
+  }, [inView, reduced, from, value, final, duration, lang, decimals]);
 
   return (
     <span className={`inline-grid tabular-nums ${className}`}>

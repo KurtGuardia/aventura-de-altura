@@ -35,8 +35,16 @@
   },
   "labels": {
     "from": "From",
-    "day": "day",
-    "days": "days",
+    "units": {
+      "horas": {
+        "one": "hour",
+        "other": "hours"
+      },
+      "dias": {
+        "one": "day",
+        "other": "days"
+      }
+    },
     "duration": "Duration",
     "difficulty": "Difficulty",
     "altitude": "Altitude",
@@ -172,5 +180,20 @@
     "cta": "Will you join this adventure?",
     "otherTours": "Other tours",
     "selectedOption": "Selected option"
+  },
+  "status": {
+    "notFound": {
+      "eyebrow": "Error 404",
+      "title": "You've wandered off the trail",
+      "text": "The page you're looking for doesn't exist or has moved. Head back home or browse our tours."
+    },
+    "error": {
+      "eyebrow": "Error",
+      "title": "Something went wrong",
+      "text": "We had trouble loading this page. Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "home": "Go to home",
+    "tours": "View tours"
   }
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useEffect, useState } from "react";
 import { WhatsApp } from "@/components/icons";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { waTracking } from "@/lib/analytics";
 
 /** Fracción de la altura de la pantalla que hay que bajar para mostrar el botón. */
 const SHOW_AFTER = 0.8;
@@ -31,6 +32,7 @@ export function WhatsAppFloat({ href, label }: { href: string | null; label: str
       {visible && (
         <m.a
           href={href}
+          {...waTracking("flotante")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={label}

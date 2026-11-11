@@ -153,7 +153,7 @@ export const tour = defineType({
       type: 'array',
       group: 'options',
       description:
-        'Normalmente hay una sola opción. Agrega más si el tour tiene variantes de duración (por ejemplo: 1, 2 o 3 días).',
+        'Normalmente hay una sola opción. Agrega más si el tour tiene variantes de duración (por ejemplo: 1, 2 o 3 días). La primera opción de la lista es la que se muestra primero. Arrastra para cambiar el orden. Para crear una opción parecida a otra, usa "Duplicate" en el menú (⋯) de la opción y cambia lo necesario.',
       of: [
         defineArrayMember({
           name: 'tourOption',
@@ -168,10 +168,40 @@ export const tour = defineType({
               validation: (rule) => rule.required(),
             }),
             defineField({
-              name: 'durationDays',
-              title: 'Duración (días)',
-              type: 'number',
-              validation: (rule) => rule.required().min(1).integer().warning('Falta la duración.'),
+              name: 'duration',
+              title: 'Duración',
+              type: 'object',
+              description: 'Por ejemplo: 4 horas, 1 día o 3 días.',
+              options: {columns: 2},
+              fields: [
+                defineField({
+                  name: 'value',
+                  title: 'Cantidad',
+                  type: 'number',
+                  description: 'Solo el número.',
+                  validation: (rule) => rule.min(0.5).precision(1),
+                }),
+                defineField({
+                  name: 'unit',
+                  title: 'Unidad',
+                  type: 'string',
+                  initialValue: 'dias',
+                  options: {
+                    list: [
+                      {title: 'Horas', value: 'horas'},
+                      {title: 'Días', value: 'dias'},
+                    ],
+                    layout: 'radio',
+                    direction: 'horizontal',
+                  },
+                }),
+              ],
+              validation: (rule) =>
+                rule
+                  .custom<{value?: number; unit?: string}>((value) =>
+                    value?.value && value.unit ? true : 'Falta la duración (cantidad y unidad).',
+                  )
+                  .warning(),
             }),
             defineField({
               name: 'nights',
@@ -203,6 +233,12 @@ export const tour = defineType({
                       validation: (rule) => rule.required().min(1).integer(),
                     }),
                     defineField({
+                      name: 'title',
+                      title: 'Título del día (opcional)',
+                      type: 'localeString',
+                      description: 'Por ejemplo: "Cochabamba → Toro Toro". Si lo dejas vacío, solo se muestra "Día 1".',
+                    }),
+                    defineField({
                       name: 'items',
                       title: 'Actividades',
                       type: 'array',
@@ -216,11 +252,7 @@ export const tour = defineType({
                               name: 'time',
                               title: 'Hora (opcional)',
                               type: 'string',
-                              description: 'Formato 24 h, por ejemplo 07:00.',
-                              validation: (rule) =>
-                                rule
-                                  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, {name: 'hora'})
-                                  .warning('Usa el formato HH:MM, por ejemplo 07:00.'),
+                              description: 'Opcional. Ej.: 08:00, ~12:30 o Por la tarde',
                             }),
                             defineField({
                               name: 'text',
@@ -240,9 +272,9 @@ export const tour = defineType({
                     }),
                   ],
                   preview: {
-                    select: {day: 'day', items: 'items'},
-                    prepare: ({day, items}) => ({
-                      title: `Día ${day ?? '?'}`,
+                    select: {day: 'day', title: 'title.es', items: 'items'},
+                    prepare: ({day, title, items}) => ({
+                      title: `Día ${day ?? '?'}${title ? ` · ${title}` : ''}`,
                       subtitle: `${items?.length ?? 0} actividades`,
                     }),
                   },
@@ -275,11 +307,19 @@ export const tour = defineType({
             }),
           ],
           preview: {
-            select: {title: 'label.es', days: 'durationDays', nights: 'nights', price: 'prices.p5plus'},
-            prepare: ({title, days, nights, price}) => ({
+            select: {
+              title: 'label.es',
+              value: 'duration.value',
+              unit: 'duration.unit',
+              nights: 'nights',
+              price: 'prices.p5plus',
+            },
+            prepare: ({title, value, unit, nights, price}) => ({
               title,
               subtitle: [
-                days ? `${days} ${days === 1 ? 'día' : 'días'}` : null,
+                value && unit
+                  ? `${value} ${unit === 'horas' ? (value === 1 ? 'hora' : 'horas') : value === 1 ? 'día' : 'días'}`
+                  : null,
                 nights ? `${nights} ${nights === 1 ? 'noche' : 'noches'}` : null,
                 price != null ? `5+ pers.: USD ${price}` : null,
               ]

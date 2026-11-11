@@ -35,8 +35,16 @@
   },
   "labels": {
     "from": "Desde",
-    "day": "día",
-    "days": "días",
+    "units": {
+      "horas": {
+        "one": "hora",
+        "other": "horas"
+      },
+      "dias": {
+        "one": "día",
+        "other": "días"
+      }
+    },
     "duration": "Duración",
     "difficulty": "Dificultad",
     "altitude": "Altitud",
@@ -172,5 +180,20 @@
     "cta": "¿Te sumas a esta aventura?",
     "otherTours": "Otros tours",
     "selectedOption": "Opción elegida"
+  },
+  "status": {
+    "notFound": {
+      "eyebrow": "Error 404",
+      "title": "Te saliste del sendero",
+      "text": "La página que buscas no existe o cambió de dirección. Vuelve al inicio o mira nuestros tours."
+    },
+    "error": {
+      "eyebrow": "Error",
+      "title": "Algo salió mal",
+      "text": "Tuvimos un problema al cargar esta página. Inténtalo de nuevo en un momento.",
+      "retry": "Reintentar"
+    },
+    "home": "Ir al inicio",
+    "tours": "Ver tours"
   }
 }

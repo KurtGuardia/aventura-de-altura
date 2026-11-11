@@ -56,7 +56,7 @@ export function TourPrices({
   const rate = lang === "es" ? exchangeRate : null;
 
   const cta = (
-    <BookingWhatsAppLink className={`${button.base} ${button.large} ${button.accent}`}>
+    <BookingWhatsAppLink origin="detalle-precios" className={`${button.base} ${button.large} ${button.accent}`}>
       <WhatsApp className="size-5" />
       {labels.checkAvailability}
     </BookingWhatsAppLink>

@@ -25,7 +25,7 @@ import {
   getTestimonials,
 } from '@/lib/sanity/fetch'
 import { t } from '@/lib/sanity/locale'
-import { pageMetadata } from '@/lib/seo'
+import { jsonLdScript, organizationJsonLd, pageMetadata } from '@/lib/seo'
 import { whatsappHref } from '@/lib/site'
 
 export async function generateMetadata({
@@ -70,9 +70,26 @@ export default async function HomePage({
     dict.whatsapp.general,
   )
 
+  const organization = organizationJsonLd({
+    lang,
+    description:
+      t(settings?.heroSubtitle, lang) ?? dict.meta.homeDescription,
+    phones: [settings?.whatsappPrimary, settings?.whatsappSecondary].filter(
+      (phone): phone is string => !!phone?.trim(),
+    ),
+    email: settings?.email,
+    sameAs: [settings?.facebook, settings?.instagram].filter(
+      (url): url is string => !!url?.trim(),
+    ),
+  })
+
   // Ritmo: oscuro → claro → oscuro (cifras) → foto → oscuro → claro → beige → claro → claro → foto → oscuro.
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(organization)}
+      />
       <Hero
         lang={lang}
         dict={dict}

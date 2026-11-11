@@ -1,35 +1,21 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
-import { Anton, IBM_Plex_Mono, Manrope } from "next/font/google";
-import { notFound } from "next/navigation";
 import { Footer } from "@/components/layout/Footer";
 import { Header, type NavLink } from "@/components/layout/Header";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
-import { getDictionary, isLocale, locales } from "@/lib/i18n";
+import { defaultLocale, getDictionary, isLocale, locales } from "@/lib/i18n";
 import { getFeaturedTours, getGallery, getSiteSettings } from "@/lib/sanity/fetch";
 import { hasAbout, hasSafety } from "@/lib/sections";
 import { t } from "@/lib/sanity/locale";
 import { siteName, siteUrl, whatsappHref } from "@/lib/site";
+import { StatusTextsProvider } from "@/components/StatusPage";
+import { WhatsAppTracker } from "@/components/WhatsAppTracker";
+import { fontVariables } from "../fonts";
 import "../globals.css";
 
-// Display condensada para títulos enormes, sans legible para el texto y mono
-// para datos (altitudes, precios, etiquetas).
-const anton = Anton({
-  variable: "--font-anton",
-  weight: "400",
-  subsets: ["latin"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  weight: ["400", "500"],
-  subsets: ["latin"],
-});
+/** Google Analytics 4: solo se carga si existe la variable. */
+const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -41,8 +27,12 @@ export function generateStaticParams() {
 }
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
-  const { lang } = await params;
-  if (!isLocale(lang)) notFound();
+  // Idioma no soportado (/fr, /foto.jpg…): el layout se pinta en el idioma por
+  // defecto y la página llama a notFound(), así se muestra la 404 del sitio
+  // (app/[lang]/not-found.tsx). Si el layout llamara a notFound(), al ser el
+  // layout raíz no habría boundary y saldría la 404 genérica de Next.
+  const { lang: param } = await params;
+  const lang = isLocale(param) ? param : defaultLocale;
 
   const [dict, settings, tours, gallery] = await Promise.all([
     getDictionary(lang),
@@ -83,7 +73,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     <html
       lang={lang}
       data-scroll-behavior="smooth"
-      className={`${anton.variable} ${manrope.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${fontVariables} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
         {/* Sin JavaScript, las entradas animadas se muestran directamente. */}
@@ -94,11 +84,14 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <SmoothScroll />
           <Header lang={lang} dict={dict} links={links} contact={contact} />
           <main id="contenido" className="flex-1">
-            {children}
+            {/* Textos de la 404 y del error de esta sección (no reciben params). */}
+            <StatusTextsProvider value={{ lang, ...dict.status }}>{children}</StatusTextsProvider>
           </main>
           <Footer dict={dict} links={footerLinks} facebook={settings?.facebook} instagram={settings?.instagram} />
         </MotionProvider>
+        {gaId && <WhatsAppTracker />}
       </body>
+      {gaId && <GoogleAnalytics gaId={gaId} />}
     </html>
   );
 }

@@ -14,6 +14,7 @@ import { useIsClient } from "@/components/useIsClient";
 import type { Locale } from "@/lib/i18n";
 import { EASE } from "@/lib/motion";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { waTracking } from "@/lib/analytics";
 
 export type MenuContact = {
   /** Enlace de WhatsApp con mensaje prellenado. */
@@ -127,6 +128,7 @@ export function MobileMenu({ lang, links, contact, labels }: Props) {
             {contact.whatsappHref && (
               <a
                 href={contact.whatsappHref}
+                {...waTracking("menu")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${button.base} ${button.whatsapp} w-full`}
@@ -141,7 +143,7 @@ export function MobileMenu({ lang, links, contact, labels }: Props) {
                   <ul className="font-mono">
                     {contact.phones.map((p) => (
                       <li key={p.phone}>
-                        <a href={p.href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                        <a href={p.href} target="_blank" rel="noopener noreferrer" {...waTracking("menu")} className="hover:text-white">
                           {p.phone}
                         </a>
                       </li>

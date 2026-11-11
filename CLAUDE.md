@@ -8,7 +8,7 @@ Proyecto paralelo con alcance cerrado. Prioriza soluciones simples, mantenibles 
 - Next.js (App Router) + TypeScript (strict) + Tailwind CSS
 - Sanity (plan Free), con Studio embebido en `/studio` y `next-sanity`
 - Hosting en Netlify. **No usar Vercel** (el plan Hobby prohíbe el uso comercial).
-- Actualización: páginas estáticas + revalidación on-demand (webhook de Sanity → `app/api/revalidate/route.ts` → `revalidatePath`)
+- Actualización: páginas estáticas + revalidación on-demand (webhook de Sanity → `app/api/revalidate/route.ts` → `revalidateTag` por `_type`, con `{ expire: 0 }`). Configuración del webhook en `docs/05-despliegue.md`.
 
 ## Rutas
 | Ruta | Contenido |
@@ -18,8 +18,9 @@ Proyecto paralelo con alcance cerrado. Prioriza soluciones simples, mantenibles 
 | `/[lang]/galeria` | Galería completa (todas las fotos, lazy loading nativo, lightbox) |
 | `/studio` | Sanity Studio (fuera de `[lang]`) |
 | `/` | Redirige a `/es` (o `/en` según Accept-Language) |
+| `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts` (home, galería y tours × ES/EN con hreflang) y `app/robots.ts` (todo salvo `/studio` y `/api/`) |
 
-Idiomas no soportados (ej. `/fr`) → 404.
+Idiomas no soportados (ej. `/fr`) y rutas inexistentes → 404 del sitio (`app/[lang]/not-found.tsx`, ES/EN, con header y footer; `app/[lang]/[...rest]` atrapa el resto). Con un idioma no válido el layout se pinta en `es` y es la **página** la que llama a `notFound()` (si lo hiciera el layout raíz, saldría la 404 genérica de Next). Errores: `app/[lang]/error.tsx` y `app/global-error.tsx`. `not-found`/`error` no reciben `params`: el layout les pasa los textos con `StatusTextsProvider` (`components/StatusPage.tsx`).
 
 ## i18n
 - **Contenido editable** (Sanity): campos por idioma `{ es, en }` dentro del mismo documento. El español es obligatorio; el inglés es opcional y, si falta, se muestra el español como respaldo.
@@ -48,6 +49,16 @@ Ritmo: Portada (oscuro, ~85svh, parallax, migas de pan, CTA + "desde") → Datos
 - **CTA móvil/tablet** (<1024px): barra fija inferior (`TourMobileBar`) tras pasar la portada, con safe-area; reemplaza a `WhatsAppFloat` (no se incluye en esta página). Escritorio: `TourStickyCard`.
 - **View Transition:** la portada usa `<ViewTransition name={tourImageTransitionName(slug)} share="tour-morph" default="none">` como `TourCard`. `TourCard` usa `prefetch` para que el detalle llegue en el mismo commit de la navegación (con Partial Prefetching un enlace normal solo trae el App Shell y no habría morph).
 - **SEO:** metadata por idioma (`Nombre · Aventura de Altura`, tagline o descripción, OG con la portada, canonical y hreflang) y JSON-LD `TouristTrip` (`tourJsonLd` en `lib/seo.ts`, oferta "desde" como `AggregateOffer` en USD).
+- **Itinerario:** la primera opción del array es la de por defecto (sin `?opcion=`). El slug de la opción sale de la duración (`4-horas`, `1-dia`, `2-dias`; `opcion-N` si se repite). Varios días: "Día N · {title}" (acordeón en móvil). Un solo día: sin encabezado, directamente la línea de tiempo con un punto por actividad.
+
+## SEO, analytics y despliegue
+- `metadataBase` = `siteUrl` (`lib/site.ts`: `NEXT_PUBLIC_SITE_URL` → `URL` de Netlify → localhost). Se fija en el build.
+- Open Graph por defecto: `public/og-default.jpg` (logo sobre azul noche), vía `pageMetadata` cuando la página no tiene foto. No usar `opengraph-image.*` por archivo: pisaría la portada de cada tour.
+- Íconos: `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png` (del logo).
+- JSON-LD `TravelAgency` en la home (`organizationJsonLd`), con los datos de contacto de `siteSettings`.
+- GA4 con `@next/third-parties`, solo si existe `NEXT_PUBLIC_GA_ID`. Evento `whatsapp_click` (`origin`, `tour_slug`): todo enlace a WhatsApp lleva `waTracking(origin, slug?)` de `lib/analytics.ts` (`data-wa-origin`/`data-wa-tour`) y `WhatsAppTracker` escucha los clics. `BookingWhatsAppLink` exige `origin`. Un CTA nuevo de WhatsApp debe llevar su origen.
+- Cabeceras de seguridad en `next.config.ts` (`nosniff`, `Referrer-Policy`, `frame-ancestors 'self'`).
+- Netlify: runtime de Next sin `netlify.toml`. Variables y pasos manuales en `docs/05-despliegue.md`.
 
 ## UI y movimiento
 Dirección: "revista de expedición" — fotos enormes, tipografía protagonista, ritmo oscuro/claro y movimiento con propósito (guiar hacia un tour o un CTA).
@@ -56,6 +67,7 @@ Dirección: "revista de expedición" — fotos enormes, tipografía protagonista
 - **Fuentes** (`next/font`): Anton (display, siempre en mayúsculas), Manrope (texto), IBM Plex Mono (datos: altitudes, precios, etiquetas).
 - **Tokens de JS** en `lib/motion.ts` (`EASE`, `DURATION`, `STAGGER`, breakpoints). Duplican los de CSS: cambiar ambos.
 - **Primitivas** (`components/motion/`, únicas con `"use client"` además de las piezas interactivas): `Reveal`, `Stagger`/`StaggerItem`, `SplitText`, `WordRotator`, `CountUp`, `ParallaxImage`, `MaskReveal`, `MagneticButton` (se inclina siempre hacia el cursor, máx. 6 px), `SmoothScroll` (Lenis). Usar siempre `m.*` (LazyMotion estricto), nunca `motion.*`.
+- **Títulos accesibles**: una sola versión legible por heading. `SplitText` pone el texto en el `aria-label` del heading (en un `<p>`, `sr-only`) y todas las copias visuales van con `aria-hidden`; los marcadores decorativos dentro de headings (p. ej. el "01" del itinerario), también. `CountUp` termina siempre en el valor exacto (`onComplete`, limpieza y temporizador de respaldo).
 - **Menos movimiento**: `useReducedMotion()` (`components/motion/useReducedMotion.ts`) es la única fuente; las primitivas renderizan el estado final. Antes de hidratar, el CSS muestra todo lo marcado con `data-reveal`. Sin parallax, Ken Burns, autoplay de carruseles, pin ni Lenis.
 - **Imágenes**: siempre `components/SanityImage.tsx` (next/image + hotspot + LQIP de Sanity). Regla de hover: en tarjetas y galería la imagen reposa a `scale(1.05)` y pasa a 1 en hover → prop `zoom` en la imagen + clase `zoom-trigger` en el contenedor que recibe el hover (con `overflow-hidden`). Sin efecto en táctil.
 - **Rendimiento**: animar solo `transform` y `opacity` (excepción: el humo de `SmokeBurst`, un canvas 2D que solo dibuja ~2 s por cambio). GSAP (solo pin horizontal de tours, ≥1024px) y Lenis se importan dinámicamente. La primera foto del hero va con `priority`; el resto del slideshow se monta en idle.
@@ -73,7 +85,8 @@ Documentos:
 - `quickFacts`: `difficulty` (baja | media | alta), `altitude?`, `departureCity`, `languages`
 - `highlights[]`: `title` (loc), `text` (loc), `image`, entre 3 y 5
 - `description` (loc, máx. ~60 palabras)
-- `options[]` (normalmente 1; Toro Toro tiene 3): `label` (loc), `durationDays`, `nights`, `lodging?`, `itinerary[]` (`day`, `items[]` { `time?`, `text` (loc) }), `prices` { `p1`, `p2`, `p3`, `p4`, `p5plus` } en USD por persona
+- `options[]` (normalmente 1; Toro Toro tiene 3, la primera "2 días / 1 noche"): `label` (loc), `duration` { `value` (número, admite 1 decimal), `unit`: `horas` \| `dias` }, `nights`, `lodging?`, `itinerary[]` (`day`, `title?` (loc, ej. "Cochabamba → Toro Toro"), `items[]` { `time?` (texto libre: "08:00", "~12:30", "Por la tarde"), `text` (loc) }), `prices` { `p1`, `p2`, `p3`, `p4`, `p5plus` } en USD por persona. El orden del array importa: la primera opción es la que se muestra al entrar.
+- Duración en la web (`durationLabel`/`formatDuration` de `lib/price.ts`): "4 horas", "1 día", "1–3 días" (misma unidad, plural según el máximo) o "4 horas – 2 días"; unidades y plurales en `dict.labels.units`.
 - `includes[]` (loc), `excludes[]` (loc), `requirements[]` (loc), `notes?` (loc), `gallery[]`
 - `featured` (boolean), `order` (number)
 
@@ -110,4 +123,5 @@ Aventura premium, fotos reales y grandes. Paleta: verde profundo (naturaleza), a
 ## Comandos
 - `npm run dev` → http://localhost:3000 (Studio en `/studio`)
 - `npm run build` → verificación antes de cada push
-- Variables de entorno: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_REVALIDATE_SECRET`, `DEEPL_API_KEY`, `SANITY_API_WRITE_TOKEN` (solo scripts de seed)
+- Variables de entorno (ver `.env.example`): `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_REVALIDATE_SECRET`, `NEXT_PUBLIC_GA_ID` (opcional), `DEEPL_API_KEY`. `SANITY_API_WRITE_TOKEN` solo en `.env.local` para los scripts de seed/migración, **nunca** en Netlify.
+- Patches puntuales de datos: scripts idempotentes con modo prueba (ej. `npx tsx scripts/migrate-duration.ts [--apply]`).

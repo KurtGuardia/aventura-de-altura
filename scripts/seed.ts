@@ -124,7 +124,7 @@ const day = (n: number, items: Item[]) => ({
 type Prices = Partial<Record<'p1' | 'p2' | 'p3' | 'p4' | 'p5plus', number>>
 type Option = {
   label: Loc
-  durationDays: number
+  duration: {value: number; unit: 'horas' | 'dias'}
   nights: number
   lodging?: string
   itinerary?: ReturnType<typeof day>[]
@@ -211,7 +211,7 @@ function tunari(): SanityDocument {
     options: options([
       {
         label: {es: 'Full day', en: 'Full day'},
-        durationDays: 1,
+        duration: {value: 1, unit: 'dias'},
         nights: 0,
         itinerary: [
           day(1, [
@@ -289,13 +289,13 @@ function toroToro(): SanityDocument {
     options: options([
       {
         label: {es: '1 día (sin hospedaje)', en: '1 day (no lodging)'},
-        durationDays: 1,
+        duration: {value: 1, unit: 'dias'},
         nights: 0,
         prices: {p1: 318, p2: 182, p3: 136, p4: 112, p5plus: 98},
       },
       {
         label: {es: '2 días / 1 noche', en: '2 days / 1 night'},
-        durationDays: 2,
+        duration: {value: 2, unit: 'dias'},
         nights: 1,
         lodging,
         itinerary: [
@@ -326,7 +326,7 @@ function toroToro(): SanityDocument {
       },
       {
         label: {es: '3 días / 2 noches', en: '3 days / 2 nights'},
-        durationDays: 3,
+        duration: {value: 3, unit: 'dias'},
         nights: 2,
         lodging,
         prices: {p1: 588, p2: 360, p3: 284, p4: 246, p5plus: 224},
@@ -397,7 +397,7 @@ function cityTour(): SanityDocument {
     options: options([
       {
         label: {es: '3 días / 2 noches', en: '3 days / 2 nights'},
-        durationDays: 3,
+        duration: {value: 3, unit: 'dias'},
         nights: 2,
         itinerary: [
           day(1, [

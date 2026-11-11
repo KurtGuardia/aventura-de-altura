@@ -93,7 +93,7 @@ export function TourHero({ tour, lang, dict }: { tour: TourDetailView; lang: Loc
 
           <Reveal delay={0.65} className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
             <MagneticButton>
-              <BookingWhatsAppLink className={`${button.base} ${button.large} ${button.accent}`}>
+              <BookingWhatsAppLink origin="hero" className={`${button.base} ${button.large} ${button.accent}`}>
                 <WhatsApp className="size-5" />
                 {dict.buttons.checkAvailability}
               </BookingWhatsAppLink>
