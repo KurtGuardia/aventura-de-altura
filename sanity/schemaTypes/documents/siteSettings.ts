@@ -88,7 +88,7 @@ export const siteSettings = defineType({
       type: 'number',
       group: 'contact',
       description:
-        'Opcional. Si se completa, la web muestra el precio aproximado en Bs junto al USD',
+        'Opcional y de uso interno: este número NO se ve en la web. Solo sirve para calcular el precio aproximado en Bs que aparece junto al USD en la versión en español. Si lo dejas vacío, solo se muestran los precios en USD.',
       validation: (rule) => rule.positive(),
     }),
 

@@ -173,6 +173,46 @@
 
 ---
 
+## Tour 4 · Incallajta + Totora (2 días / 1 noche)
+
+> Fuente: publicación de Instagram del cliente del 26-nov-2025 (https://www.instagram.com/p/DRiI-bkEQui/). Cargado en Sanity el 15-nov-2026 (`tour-incallajta-totora`).
+
+| Campo | Valor |
+|---|---|
+| Tipo | Cultura / naturaleza |
+| Duración | 2 días / 1 noche |
+| Modalidad | 100 % privado (familias, parejas o grupos pequeños), ritmo flexible |
+| Dificultad | **No especificada** (pendiente) |
+| Hospedaje | En Totora (no se indica el lugar) |
+
+### Itinerario (sin horarios en la fuente)
+
+**Día 1 · Incallajta y Totora**
+- Salida desde Cochabamba con dirección a Pocona.
+- Recorrido panorámico por La Angostura y el Valle Alto.
+- Exploración guiada de la ciudadela inca de Incallajta: Gran Kallanka, Torreón Astronómico, Baño de las Ñustas, senderos y miradores.
+- Almuerzo típico.
+- Visita a Incallajta, el pueblo.
+- Refrigerio.
+- Llegada y hospedaje en Totora.
+
+**Día 2 · Totora colonial**
+- Desayuno.
+- Recorrido privado por Totora: puentes coloniales, arquitectura histórica, iglesias antiguas.
+- Visita a La Pajcha, cascada de 30 m.
+- Almuerzo.
+- Retorno privado a Cochabamba.
+
+### Precio
+
+- **No publicado.** Faltan todos los tramos.
+
+### Incluye (deducido del itinerario)
+
+- Transporte privado, guías especializados, hospedaje en Totora, desayuno, 2 almuerzos y refrigerio.
+
+---
+
 ## Modelo de datos propuesto (esquema Sanity `tour`)
 
 Derivado de los tres tours. Cubre todas las variantes sin campos ad hoc.
@@ -219,6 +259,7 @@ tour {
 4. **Qué no incluye** en Tunari y City Tour (impuestos, propinas, seguro, etc.).
 5. ¿Los precios son **en USD también para el público nacional**? ¿Se muestran en Bs?
 6. **Otros tours** que se mostrarán (el alcance permite 6–8): Uyuni, Sajama, Madidi y Cordillera Real se mencionan en el briefing, pero no hay material.
-7. **Fotos propias** en alta resolución de cada tour.
-8. **Política de reserva y cancelación.**
+7. **Fotos propias** en alta resolución de cada tour. Con foto genérica de Unsplash en "Lo mejor del tour" (reemplazar por propias): Palacio Portales, Villa Albina, Pueblo de Toro Toro, Totora colonial y Cascada La Pajcha.
+8. **Política de reserva y cancelación.** Hay un borrador cargado en el Studio (15-nov-2026): adelanto del 50 %, devolución total con 7+ días, 50 % entre 6 días y 72 h, nada con menos de 72 h. El cliente debe confirmarla o ajustarla.
 9. **Correo de contacto** (solo hay WhatsApp).
+10. **Incallajta + Totora**: precios, dificultad, horarios, nombre del hospedaje y si incluye entradas.

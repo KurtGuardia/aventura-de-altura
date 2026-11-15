@@ -369,3 +369,23 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - Restaurados desde el historial de Sanity (revisión del 2026-11-09) los datos curiosos, palabras rotativas, Seguridad, Por qué elegirnos, Tour personalizado y la foto de Nosotros, que se habían borrado al probar el Studio. Se conservaron los cambios reales (correo, tipo de cambio, nota de Google, texto de Nosotros) y se quitaron los textos de prueba (política de reserva, alt sin foto en Seguridad).
 - **Motivo:** el cliente no veía de dónde salían las fotos del slideshow ni el subtítulo, y al probar campos creyó que el contenido estaba en el código.
 - **Alternativas descartadas:** convertir `heroImage` en un array (habría que migrar el dato y cambiar el CTA final y el OG, que también la usan).
+
+## 2026-11-15 · Contenido: política, fotos, galería y tour Incallajta + Totora
+
+- **Decisión:** patch puntual `scripts/patch-content-2026-11-15.ts` (idempotente, con modo prueba) que solo toca estos campos:
+  - `siteSettings.bookingPolicy`: borrador de política de reserva y cancelación (ES/EN) para que el cliente lo ajuste. `googleRating` pasa a 5.0: Google Maps muestra 5.0 con 15 opiniones, todas de 5 estrellas.
+  - Fotos de "Lo mejor del tour": se probaron fotos de Wikimedia Commons (CC BY / CC BY-SA) y se descartaron el mismo día: exigen crédito visible y se prefieren fotos propias del cliente. El script las quita y borra los archivos de Sanity. Quedan sin foto (usan la portada del tour): Cristo de la Concordia, Palacio Portales, Villa Albina y Centro histórico (City Tour), Pueblo de Toro Toro, Totora colonial y Cascada La Pajcha (Incallajta + Totora).
+  - Galería: las 12 fotos de `../fotos` que faltaban (los `.NEF` convertidos a JPG en `../imagenes-web`). Las de Incallajta enlazan al tour nuevo y la de montañas plegadas, a Toro Toro.
+  - Tour nuevo `tour-incallajta-totora` (destacado, orden 4) con el itinerario de la publicación de Instagram del cliente. Sin precios ni dificultad (no publicados): el Studio muestra los avisos.
+- **Motivo:** completar contenido antes de la revisión del cliente sin pisar lo que ya editó (no se re-ejecutan los seeds).
+- **Pendiente:** pedir al cliente fotos propias de esos 7 atractivos.
+- **Alternativas descartadas:** testimonios con menos de 5 estrellas: no existen en Google Maps (las 15 opiniones son de 5).
+
+## 2026-11-15 · Testimonios, tipos de tour y fotos de "Lo mejor del tour" (2.º patch)
+
+- **Decisión:** `scripts/patch-content-2026-11-15-b.ts` (idempotente, con modo prueba):
+  - Testimonios de Jana V. (Toro Toro) y Bliss v. (Tunari), de 5 estrellas: no hay reseñas con menos. Original en inglés en EN; en ES, traducción. `googleRating` = 5.
+  - Tipos de tour nuevos sin tours asignados: Aventura / Adventure y Selva / Jungle.
+  - Los 7 atractivos sin foto usan fotos de Unsplash (licencia Unsplash: uso libre, sin crédito obligatorio), en `../imagenes-web/` (`cristo-unsplash.jpg` y `libre-*.jpg`). El Cristo y la vista de Cochabamba (Centro histórico) son de los lugares reales; las otras 5 son genéricas (palacete, mansión, pueblo andino, calle colonial, cascada) y su `alt` describe lo que se ve, no el lugar del tour.
+- **Motivo:** no dejar atractivos sin imagen. Commons exige crédito visible. Se probó generar imágenes con IA (Canva), pero no se podían descargar en tamaño completo y se agotó la cuota.
+- **Pendiente:** reemplazar las 5 fotos genéricas por fotos reales del cliente (Palacio Portales, Villa Albina, Pueblo de Toro Toro, Totora colonial, La Pajcha).
