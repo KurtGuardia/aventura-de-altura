@@ -33,9 +33,9 @@ export type SiteSettings = {
   heroTitle?: LocaleValue | null;
   heroRotatingWords?: LocaleValue[] | null;
   funFacts?: FunFact[] | null;
-  heroSubtitle?: LocaleValue | null;
   heroCtaLabel?: LocaleValue | null;
   heroImage?: SanityImage | null;
+  heroSlides?: SanityImage[] | null;
   safety?: {
     title?: LocaleValue | null;
     intro?: LocaleValue | null;

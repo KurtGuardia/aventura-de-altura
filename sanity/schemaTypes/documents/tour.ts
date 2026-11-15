@@ -16,7 +16,7 @@ export const tour = defineType({
   title: 'Tour',
   type: 'document',
   groups: [
-    {name: 'cover', title: 'Portada', default: true},
+    {name: 'cover', title: 'Portada'},
     {name: 'facts', title: 'Datos rápidos'},
     {name: 'highlights', title: 'Destacados'},
     {name: 'options', title: 'Itinerario y precios'},

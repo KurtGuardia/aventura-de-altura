@@ -24,7 +24,6 @@ import {
   getSiteSettings,
   getTestimonials,
 } from '@/lib/sanity/fetch'
-import { t } from '@/lib/sanity/locale'
 import { jsonLdScript, organizationJsonLd, pageMetadata } from '@/lib/seo'
 import { whatsappHref } from '@/lib/site'
 
@@ -43,9 +42,7 @@ export async function generateMetadata({
     path: '',
     title: dict.meta.homeTitle,
     absoluteTitle: true,
-    description:
-      t(settings?.heroSubtitle, lang) ??
-      dict.meta.homeDescription,
+    description: dict.meta.homeDescription,
     image: settings?.heroImage,
   })
 }
@@ -72,8 +69,7 @@ export default async function HomePage({
 
   const organization = organizationJsonLd({
     lang,
-    description:
-      t(settings?.heroSubtitle, lang) ?? dict.meta.homeDescription,
+    description: dict.meta.homeDescription,
     phones: [settings?.whatsappPrimary, settings?.whatsappSecondary].filter(
       (phone): phone is string => !!phone?.trim(),
     ),

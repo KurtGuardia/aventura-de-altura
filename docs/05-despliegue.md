@@ -25,7 +25,17 @@ El sitio se despliega con el runtime de Next.js de Netlify (adaptador OpenNext),
 
 ### Cabeceras de seguridad
 
-Definidas en `next.config.ts` (valen en local y en Netlify): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy: frame-ancestors 'self'` y `X-Frame-Options: SAMEORIGIN`.
+Definidas en `next.config.ts` (valen en local y en Netlify): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy: frame-ancestors 'self'` y `X-Frame-Options: SAMEORIGIN`. Excepción: `/studio` permite `https://sanity.io` y `https://*.sanity.io` como ancestros (sin `X-Frame-Options`) para que el Studio se abra dentro del Dashboard de sanity.io.
+
+### Registrar el Studio en sanity.io (Dashboard)
+
+Para que el proyecto en sanity.io abra **el Studio** (y no la web), hay que registrar su URL completa, con `/studio`:
+
+```bash
+npx sanity deploy --external --url https://<dominio>/studio
+```
+
+Si antes se registró la URL raíz del sitio, borrarla en sanity.io/manage → proyecto → **Studios**. En **API → CORS origins** debe estar `https://<dominio>` con *Allow credentials*.
 
 ---
 

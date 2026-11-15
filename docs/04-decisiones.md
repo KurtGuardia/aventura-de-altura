@@ -359,3 +359,13 @@ Registro de decisiones del proyecto, en orden cronológico. Cada entrada indica 
   - CSP completa: exige mantener la lista de orígenes de Sanity, GA y el Studio; riesgo de romper el Studio para un sitio sin formularios ni datos de usuario.
   - Origen "tarjeta": las tarjetas de tour no tienen botón de WhatsApp (enlazan al detalle), así que no hay clic que medir.
 - **Limitación conocida:** la primera visita a un slug de tour inexistente responde 200 (con la UI de 404 y `noindex`) y las siguientes, 404; es cómo Next sirve con PPR los parámetros no generados en el build.
+
+## 2026-11-15 · Ajustes del Studio tras la primera revisión del cliente
+
+- **Decisión:**
+  - Sin grupo `default` en `siteSettings` ni en `tour`: el Studio abre siempre en "Todos los campos".
+  - Se quita `heroSubtitle` (el cliente no sabía para qué era). La franja "¿Sabías que?" con los datos curiosos cumple esa función; la descripción de la home sale del diccionario (`meta.homeDescription`).
+  - Nuevo campo `heroSlides` ("Más fotos para la portada", máx. 4): el slideshow es `heroImage` + `heroSlides`. Si está vacío, se usan las portadas de los tours destacados, como antes.
+  - Restaurados desde el historial de Sanity (revisión del 2026-11-09) los datos curiosos, palabras rotativas, Seguridad, Por qué elegirnos, Tour personalizado y la foto de Nosotros, que se habían borrado al probar el Studio. Se conservaron los cambios reales (correo, tipo de cambio, nota de Google, texto de Nosotros) y se quitaron los textos de prueba (política de reserva, alt sin foto en Seguridad).
+- **Motivo:** el cliente no veía de dónde salían las fotos del slideshow ni el subtítulo, y al probar campos creyó que el contenido estaba en el código.
+- **Alternativas descartadas:** convertir `heroImage` en un array (habría que migrar el dato y cambiar el CTA final y el OG, que también la usan).

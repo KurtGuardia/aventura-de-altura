@@ -30,7 +30,7 @@ Idiomas no soportados (ej. `/fr`) y rutas inexistentes → 404 del sitio (`app/[
 
 ## Home (orden de secciones)
 Ritmo oscuro/claro: cada sección tiene su fondo fijo (entre paréntesis).
-1. Hero (oscuro): "Descubre Bolivia. Vive la aventura." con la última palabra rotativa (`heroRotatingWords`, editable en el Studio) + CTA hacia los tours + "¿Sabías que?" con los datos curiosos (`funFacts`) alternándose. Slideshow con `heroImage` + portadas de los tours destacados.
+1. Hero (oscuro): "Descubre Bolivia. Vive la aventura." con la última palabra rotativa (`heroRotatingWords`, editable en el Studio) + CTA hacia los tours + "¿Sabías que?" con los datos curiosos (`funFacts`) alternándose. Slideshow con `heroImage` + `heroSlides` ("Más fotos para la portada"; si está vacío, portadas de los tours destacados), máx. 5. Sin subtítulo editable.
 2. Tours destacados (claro): tarjetas con foto, duración, tipo y "desde USD X", enlazadas a `/tours/[slug]`
 3. Bolivia en cifras (oscuro): 6 celdas con los datos curiosos (`funFacts`) que se turnan (una cada 2,6 s, a veces dos, con una bocanada de humo blanco en canvas, `SmokeBurst`; nunca dos del mismo lugar a la vez). Lista completa en `sr-only`.
 4. Tour personalizado (foto a sangre): "Arma tu propio tour por Bolivia" + CTA "Arma tu tour" a WhatsApp
@@ -76,7 +76,7 @@ Dirección: "revista de expedición" — fotos enormes, tipografía protagonista
 ## Modelo de datos (Sanity)
 Documentos:
 - `tour` (ver abajo) y `tourCategory` (tipos de tour, editables por el cliente).
-- `siteSettings` (singleton): contacto, WhatsApp, Facebook e Instagram, `exchangeRate?` (USD → Bs, manual), textos de la home (Nosotros con una foto `about.image`), palabras rotativas del título (`heroRotatingWords[]`, localeString), datos curiosos de Bolivia (`funFacts[]`: `value`, `unit?`, `place`, `text`, todos loc salvo `value`), sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
+- `siteSettings` (singleton): contacto, WhatsApp, Facebook e Instagram, `exchangeRate?` (USD → Bs, manual), fotos de la portada (`heroImage` + `heroSlides[]`), textos de la home (Nosotros con una foto `about.image`), palabras rotativas del título (`heroRotatingWords[]`, localeString), datos curiosos de Bolivia (`funFacts[]`: `value`, `unit?`, `place`, `text`, todos loc salvo `value`), sección Tour personalizado (`customTour`: título, texto, imagen, texto del botón) y reseñas de Google (`googleRating`, `googleReviewCount`, `googleReviewsUrl`, manuales).
 - `testimonial`: `name`, `country?`, `rating` (1–5), `text` (loc), `date?`, `sourceUrl?`, `order`.
 - `gallery` (singleton): `images[]` → `image` (hotspot), `alt?` (loc), `tour?` (referencia a `tour`).
 
@@ -96,6 +96,7 @@ Reglas:
 - Campos opcionales vacíos → **la sección no se renderiza** (nunca mostrar huecos ni "pendiente").
 - Usar `validation.warning` (no `error`) para marcar en el Studio lo que falta completar en cada tour.
 - Etiquetas y descripciones del Studio en español claro, pensadas para un usuario no técnico.
+- Los documentos con grupos (pestañas) no marcan ninguno como `default`: el Studio abre en "Todos los campos".
 
 ## Prioridades
 - Mobile-first, carga rápida (`next/image` con imágenes de Sanity), Core Web Vitals.

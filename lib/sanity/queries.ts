@@ -5,8 +5,8 @@ const IMAGE = /* groq */ `asset, crop, hotspot, alt, "lqip": asset->metadata.lqi
 
 export const SITE_SETTINGS_QUERY = defineQuery(`*[_id == "siteSettings"][0]{
   whatsappPrimary, whatsappSecondary, email, facebook, instagram, contactLanguages, exchangeRate,
-  heroTitle, heroRotatingWords, heroSubtitle, heroCtaLabel,
-  funFacts[]{_key, value, unit, place, text}, heroImage{${IMAGE}},
+  heroTitle, heroRotatingWords, heroCtaLabel,
+  funFacts[]{_key, value, unit, place, text}, heroImage{${IMAGE}}, heroSlides[defined(asset)]{${IMAGE}},
   safety{title, intro, items[]{_key, title, text}, image{${IMAGE}}},
   whyUs{title, items[]{_key, title, text}},
   about{title, text, image{${IMAGE}}},

@@ -19,7 +19,7 @@ export const siteSettings = defineType({
   title: 'Ajustes del sitio',
   type: 'document',
   groups: [
-    {name: 'contact', title: 'Contacto y precios', default: true},
+    {name: 'contact', title: 'Contacto y precios'},
     {name: 'hero', title: 'Portada'},
     {name: 'facts', title: 'Datos curiosos'},
     {name: 'safety', title: 'Seguridad'},
@@ -122,17 +122,23 @@ export const siteSettings = defineType({
       description: 'Botón que lleva a los tours. Por ejemplo: "Encuentra tu próxima aventura".',
     }),
     defineField({
-      name: 'heroSubtitle',
-      title: 'Subtítulo',
-      type: 'localeText',
-      group: 'hero',
-    }),
-    defineField({
       name: 'heroImage',
       title: 'Foto de portada',
       type: 'imageWithAlt',
       group: 'hero',
-      description: 'Foto grande y horizontal que aparece al abrir la web.',
+      description:
+        'Foto grande y horizontal que aparece al abrir la web. Es la primera del pase de fotos y también se usa de fondo en el bloque final "¿Listo para tu próxima aventura?".',
+    }),
+    defineField({
+      name: 'heroSlides',
+      title: 'Más fotos para la portada',
+      type: 'array',
+      group: 'hero',
+      description:
+        'Fotos que se van alternando con la foto de portada (se muestran hasta 5 en total). Si lo dejas vacío, se usan las fotos de portada de los tours destacados.',
+      of: [defineArrayMember({type: 'imageWithAlt', title: 'Foto'})],
+      options: {layout: 'grid'},
+      validation: (rule) => rule.max(4).warning('Solo se muestran 5 fotos en total: la de portada y 4 más.'),
     }),
 
     // ── Datos curiosos ─────────────────────────────────────────
@@ -292,7 +298,8 @@ export const siteSettings = defineType({
       title: 'Cantidad de reseñas en Google',
       type: 'number',
       group: 'google',
-      description: 'Cuántas reseñas tiene el perfil en Google, por ejemplo 87.',
+      description:
+        'Cuántas reseñas tiene el perfil en Google. Actualízalo aquí a mano cada vez que aumenten las reseñas en Google.',
       validation: (rule) => rule.min(0).integer(),
     }),
     defineField({

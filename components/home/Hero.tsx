@@ -24,12 +24,14 @@ type Props = {
 };
 
 /**
- * Fotos del slideshow: la del hero (siteSettings) y las portadas de los tours
- * destacados, sin repetir asset.
+ * Fotos del slideshow: la del hero y las "Más fotos para la portada" del
+ * Studio. Si no hay fotos extra, las portadas de los tours destacados. Sin
+ * repetir asset.
  */
 function heroSlides(settings: SiteSettings | null, tours: TourCard[]): SanityImageType[] {
   const seen = new Set<string>();
-  return [settings?.heroImage, ...tours.map((tour) => tour.coverImage)]
+  const extra = settings?.heroSlides?.length ? settings.heroSlides : tours.map((tour) => tour.coverImage);
+  return [settings?.heroImage, ...extra]
     .filter((image): image is SanityImageType => {
       const ref = image?.asset?._ref;
       if (!ref || seen.has(ref)) return false;
@@ -60,7 +62,6 @@ function rotatingTitle(title: string, words: string[]) {
 export function Hero({ lang, dict, settings, tours }: Props) {
   const title = t(settings?.heroTitle, lang);
   if (!title) return null;
-  const subtitle = t(settings?.heroSubtitle, lang);
   const cta = t(settings?.heroCtaLabel, lang) ?? dict.buttons.viewTours;
   const words = (settings?.heroRotatingWords ?? [])
     .map((word) => t(word, lang)?.trim())
@@ -91,12 +92,6 @@ export function Hero({ lang, dict, settings, tours }: Props) {
           />
         ) : (
           <SplitText as="h1" trigger="mount" delay={0.2} text={title} className={titleClass} />
-        )}
-
-        {subtitle && (
-          <Reveal delay={0.7}>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85 md:text-xl">{subtitle}</p>
-          </Reveal>
         )}
 
         {tours.length > 0 && (
